@@ -4,14 +4,13 @@ from sksurv.ensemble import RandomSurvivalForest
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
 
-data = pd.read_csv('../../Files/5yr/FeatureSets/Best_Features_10.csv')
+data = pd.read_csv('../../Files/5yr/FeatureSets/Best_Features_12.csv')
 data['os_event_censored_5yr'] = data['os_event_censored_5yr'].astype(bool)
 features = data.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
 time_to_event_data = data[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(index=False)
-rsf = RandomSurvivalForest(max_depth=None, max_features=None, min_samples_leaf=8, min_samples_split=15,
+rsf = RandomSurvivalForest(max_depth=5, max_features=None, min_samples_leaf=8, min_samples_split=2,
                            n_estimators=100, random_state=40)
 rsf.fit(features, time_to_event_data)
-
 
 # Load in test data
 test_data = pd.read_csv('../../Files/5yr/Test_Preprocessed_Data.csv')
@@ -24,7 +23,8 @@ best_features_test_data = test_data[best_feature_columns]
 
 # Split labels and features
 test_features = best_features_test_data.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
-test_time_to_event_data = best_features_test_data[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(index= False)
+test_time_to_event_data = best_features_test_data[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(
+    index=False)
 
 # Run test data through the model
 result = rsf.score(test_features, test_time_to_event_data)
@@ -41,11 +41,9 @@ importance_df = pd.DataFrame({
 
 print(importance_df)
 
-
 # Display probabilities for first 5 and last 5 entries in test data (sorted by age)
 X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
 X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
-
 
 survival = rsf.predict_survival_function(X_test_sel, return_array=True)
 
@@ -67,8 +65,13 @@ time_index = np.where(time_points == 60)[0][0]
 five_year_survival_probability = probabilities[time_index]
 print(f"5-year survival probability: {five_year_survival_probability}")
 
-#Feature set 8 parameters = max_depth=None, max_features=None, min_samples_leaf=4, min_samples_split=5,
+# Feature set 8 parameters = max_depth=None, max_features=None, min_samples_leaf=4, min_samples_split=5,
 #                           n_estimators=200, random_state=40
-#Feature set 9 parameters = max_depth=None, max_features=None, min_samples_leaf=8, min_samples_split=15,
+# Feature set 9 parameters = max_depth=None, max_features=None, min_samples_leaf=8, min_samples_split=15,
 #                           n_estimators=100, random_state=40
-#Feature set 10 parameters =
+# Feature set 10 parameters = max_depth=5, max_features=None, min_samples_leaf=8, min_samples_split=10,
+#                           n_estimators=100, random_state=40
+# Feature set 11 parameters = max_depth=5, max_features=None, min_samples_leaf=8, min_samples_split=10,
+#                           n_estimators=100, random_state=40
+# Feature set 12 parameters = max_depth=5, max_features=None, min_samples_leaf=8, min_samples_split=2,
+#                            n_estimators=100, random_state=40

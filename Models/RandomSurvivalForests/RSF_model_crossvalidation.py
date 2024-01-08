@@ -26,7 +26,7 @@ for file_path in features_file_paths:
     feature_dataframes.append(feature_dataframe)
 
 # K-Fold setup
-kf = KFold(n_splits=10, shuffle=True, random_state=40)
+kf = KFold(n_splits=5, shuffle=True, random_state=40)
 
 feature_set_counter = 1
 best_feature_set_c_index = 0
@@ -44,7 +44,8 @@ for feature_sets in feature_dataframes:
         time_to_event_train, time_to_event_test = time_to_event_data[train_index], time_to_event_data[test_index]
 
         # Train the model
-        rsf = RandomSurvivalForest(min_samples_split=10, n_estimators=100, random_state=40)
+        rsf = RandomSurvivalForest(max_depth=5, max_features=None, min_samples_leaf=8, min_samples_split=2,
+                                   n_estimators=100, random_state=40)
         rsf.fit(features_train, time_to_event_train)
 
         # Evaluate the model
@@ -79,7 +80,8 @@ best_features_for_model = feature_dataframes[best_feature_set - 1]
 features = best_features_for_model.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
 time_to_event_data = best_features_for_model[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(
     index=False)
-rsf = RandomSurvivalForest(min_samples_split=10, n_estimators=100, random_state=40)
+rsf = RandomSurvivalForest(max_depth=5, max_features=None, min_samples_leaf=8, min_samples_split=2,
+                           n_estimators=100, random_state=40)
 rsf.fit(features, time_to_event_data)
 
 # Load in test data

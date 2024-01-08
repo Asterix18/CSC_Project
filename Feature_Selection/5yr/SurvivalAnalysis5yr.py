@@ -9,6 +9,7 @@ data = pd.read_csv('../../Files/5yr/Train_Preprocessed_Data.csv')
 
 # Configure model
 kmf = KaplanMeierFitter()
+confidence_intervals_off = False
 
 # Set axis limits so all graphs produced are comparable
 x_axis_limits = (0, data['os_months_censored_5yr'].max())
@@ -22,13 +23,18 @@ df_basic = data[['os_months_censored_5yr', 'os_event_censored_5yr']]
 kmf.fit(durations=df_basic['os_months_censored_5yr'], event_observed=df_basic['os_event_censored_5yr'])
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
+
 plt.title('5 year Kaplan-Meier Survival Curve - All Data')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/All_Data.png')
 plt.show()
 
 # ****** Genders ******
@@ -38,23 +44,29 @@ df_males = data[data['sex'] == 'Male']
 kmf.fit(durations=df_males['os_months_censored_5yr'], event_observed=df_males['os_event_censored_5yr'], label="Male")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 
 # Females
 df_females = data[data['sex'] == 'Female']
 # Fit the model
 kmf.fit(durations=df_females['os_months_censored_5yr'], event_observed=df_females['os_event_censored_5yr'], label="Female")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - Gender')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.legend();
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/Sex.png')
 plt.show()
-
 
 # ****** Ages ******
 # Age <= 60
@@ -63,23 +75,27 @@ df_age_under_70 = data[data['age_at_diagnosis_in_years'] <= 70]
 kmf.fit(durations=df_age_under_70['os_months_censored_5yr'], event_observed=df_age_under_70['os_event_censored_5yr'], label="0 - 70")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 # Age > 60
 df_age_over_70 = data[data['age_at_diagnosis_in_years'] > 70]
 # Fit the model
 kmf.fit(durations=df_age_over_70['os_months_censored_5yr'], event_observed=df_age_over_70['os_event_censored_5yr'], label="71 - 100")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - Age')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/Age.png')
 plt.show()
-print(len(df_age_under_70))
-print(len(df_age_over_70))
-
 
 # ****** Chemotherapy ******
 # Chemotherapy administered
@@ -88,20 +104,27 @@ received_chemo = data[data['chemotherapy_adjuvant'] == 'Y']
 kmf.fit(durations=received_chemo['os_months_censored_5yr'], event_observed=received_chemo['os_event_censored_5yr'], label="Chemotherapy")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 # No Chemotherapy
 did_not_receive_chemo = data[data['chemotherapy_adjuvant'] == 'N']
 # Fit the model
 kmf.fit(durations=did_not_receive_chemo['os_months_censored_5yr'], event_observed=did_not_receive_chemo['os_event_censored_5yr'],
         label="No chemotherapy")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - Chemotherapy')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/Chemotherapy.png')
 plt.show()
 
 # ****** TP53 Mutation ******
@@ -111,20 +134,27 @@ tp53_wild_type = data[data['tp53_mutation'] == 'WT']
 kmf.fit(durations=tp53_wild_type['os_months_censored_5yr'], event_observed=tp53_wild_type['os_event_censored_5yr'], label="Wild-type")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 # Mutated
 tp53_mutated = data[data['tp53_mutation'] == 'M']
 # Fit the model
 kmf.fit(durations=tp53_mutated['os_months_censored_5yr'], event_observed=tp53_mutated['os_event_censored_5yr'],
         label="Mutated")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - TP53 Mutation')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/TP53_mutation.png')
 plt.show()
 
 # ****** BRAF Mutation ******
@@ -134,20 +164,27 @@ braf_wild_type = data[data['braf_mutation'] == 'WT']
 kmf.fit(durations=braf_wild_type['os_months_censored_5yr'], event_observed=braf_wild_type['os_event_censored_5yr'], label="Wild-type")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 # Mutated
 braf_mutated = data[data['braf_mutation'] == 'M']
 # Fit the model
 kmf.fit(durations=braf_mutated['os_months_censored_5yr'], event_observed=braf_mutated['os_event_censored_5yr'],
         label="Mutated")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - BRAF Mutation')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/BRAF_mutation.png')
 plt.show()
 
 # ****** KRAS Mutation ******
@@ -157,20 +194,27 @@ kras_wild_type = data[data['kras_mutation'] == 'WT']
 kmf.fit(durations=kras_wild_type['os_months_censored_5yr'], event_observed=kras_wild_type['os_event_censored_5yr'], label="Wild-type")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 # Mutated
 kras_mutated = data[data['kras_mutation'] == 'M']
 # Fit the model
 kmf.fit(durations=kras_mutated['os_months_censored_5yr'], event_observed=kras_mutated['os_event_censored_5yr'],
         label="Mutated")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - KRAS Mutation')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/KRAS_mutation.png')
 plt.show()
 
 # ****** TNM Stage ******
@@ -180,20 +224,27 @@ stage_2_tnm = data[data['tnm_stage'] == 2]
 kmf.fit(durations=stage_2_tnm['os_months_censored_5yr'], event_observed=stage_2_tnm['os_event_censored_5yr'], label="Stage 2")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 # Mutated
 stage_3_tnm = data[data['tnm_stage'] == 3]
 # Fit the model
 kmf.fit(durations=stage_3_tnm['os_months_censored_5yr'], event_observed=stage_3_tnm['os_event_censored_5yr'],
         label="Stage 3")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - TNM Stage')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/TNM_stage.png')
 plt.show()
 
 # ****** Tumour Location ******
@@ -203,20 +254,27 @@ proximal = data[data['tumour_location'] == 'proximal']
 kmf.fit(durations=proximal['os_months_censored_5yr'], event_observed=proximal['os_event_censored_5yr'], label="Proximal")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 # Distal
 distal = data[data['tumour_location'] == 'distal']
 # Fit the model
 kmf.fit(durations=distal['os_months_censored_5yr'], event_observed=distal['os_event_censored_5yr'],
         label="Distal")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - Tumour Location')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/Tumour_location.png')
 plt.show()
 
 # ****** Relapse Event ******
@@ -227,20 +285,27 @@ kmf.fit(durations=
         relapse['os_months_censored_5yr'], event_observed=relapse['os_event_censored_5yr'], label="Relapse")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 # Did not relapse
 no_relapse = data[data['rfs_event_censored_5yr'] == 0]
 # Fit the model
 kmf.fit(durations=no_relapse['os_months_censored_5yr'], event_observed=no_relapse['os_event_censored_5yr'],
         label="No Relapse")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - Relapse Event censored at 5 years')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/Relapse_event.png')
 plt.show()
 
 # ****** MMR Status ******
@@ -250,20 +315,27 @@ kmf.fit(durations=
         dMMR['os_months_censored_5yr'], event_observed=dMMR['os_event_censored_5yr'], label="dMMR")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 # Distal
 pMMR = data[data['mmr_status'] == 0]
 # Fit the model
 kmf.fit(durations=pMMR['os_months_censored_5yr'], event_observed=pMMR['os_event_censored_5yr'],
         label="pMMR")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - MMR Status')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/MMR_status.png')
 plt.show()
 
 # ****** CIMP Status ******
@@ -281,13 +353,17 @@ cimp_minus = data[data['cimp_status'] == 0]
 kmf.fit(durations=cimp_minus['os_months_censored_5yr'], event_observed=cimp_minus['os_event_censored_5yr'],
         label="cimp_minus")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - CIMP Status')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/CIMP_status.png')
 plt.show()
 
 # ****** CIN Status ******
@@ -298,20 +374,27 @@ kmf.fit(durations=
         cin_plus['os_months_censored_5yr'], event_observed=cin_plus['os_event_censored_5yr'], label="cin_plus")
 # Plot the survival curve
 plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 # Minus
 cin_minus = data[data['cin_status'] == 0]
 # Fit the model
 kmf.fit(durations=cin_minus['os_months_censored_5yr'], event_observed=cin_minus['os_event_censored_5yr'],
         label="cin_minus")
 # Plot the survival curve
-kmf.plot_survival_function()
+if confidence_intervals_off:
+    kmf.plot_survival_function(ci_show=False)
+else:
+    kmf.plot_survival_function()
 plt.title('5 year Kaplan-Meier Survival Curve - CIN Status')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
+# plt.xlim(x_axis_limits)
+# plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig('../../Files/5yr/KaplanMeierCurves/CIN_status.png')
 plt.show()
 
 # ****** tnm.t ******
@@ -320,12 +403,16 @@ for tnm_t_category in data['tnm.t'].unique():
     kmf.fit(durations=data[mask]['os_months_censored_5yr'],
             event_observed=data[mask]['os_event_censored_5yr'],
             label=str(tnm_t_category))
-    kmf.plot_survival_function()
+    if confidence_intervals_off:
+        kmf.plot_survival_function(ci_show=False)
+    else:
+        kmf.plot_survival_function()
 
 plt.title('Survival curves by tnm.t category up to 5 years')
 plt.xlabel('Time in months')
 plt.ylabel('Survival Probability')
 plt.legend(title='tnm.t category')
+plt.savefig('../../Files/5yr/KaplanMeierCurves/tnm_t.png')
 plt.show()
 
 # ****** tnm.n ******
@@ -334,12 +421,16 @@ for tnm_n_category in data['tnm.n'].unique():
     kmf.fit(durations=data[mask]['os_months_censored_5yr'],
             event_observed=data[mask]['os_event_censored_5yr'],
             label=str(tnm_n_category))
-    kmf.plot_survival_function()
+    if confidence_intervals_off:
+        kmf.plot_survival_function(ci_show=False)
+    else:
+        kmf.plot_survival_function()
 
 plt.title('Survival curves by tnm.n category up to 5 years')
 plt.xlabel('Time in months')
 plt.ylabel('Survival Probability')
 plt.legend(title='tnm.n category')
+plt.savefig('../../Files/5yr/KaplanMeierCurves/tnm_n.png')
 plt.show()
 
 # ****** CMS ******
@@ -348,12 +439,16 @@ for CMS_category in data['CMS'].unique():
     kmf.fit(durations=data[mask]['os_months_censored_5yr'],
             event_observed=data[mask]['os_event_censored_5yr'],
             label=str(CMS_category))
-    kmf.plot_survival_function()
+    if confidence_intervals_off:
+        kmf.plot_survival_function(ci_show=False)
+    else:
+        kmf.plot_survival_function()
 
 plt.title('Survival curves by CMS category up to 5 years')
 plt.xlabel('Time in months')
 plt.ylabel('Survival Probability')
 plt.legend(title='CMS')
+plt.savefig('../../Files/5yr/KaplanMeierCurves/CMS.png')
 plt.show()
 
 # ****** LogRank Tests ******

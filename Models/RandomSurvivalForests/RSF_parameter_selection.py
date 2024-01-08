@@ -2,7 +2,16 @@ import pandas as pd
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.model_selection import GridSearchCV
 
-features_file_paths = (['../../Files/5yr/FeatureSets/Best_Features_10.csv',
+features_file_paths = (['../../Files/5yr/FeatureSets/Best_Features_1.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_2.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_3.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_4.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_5.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_6.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_7.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_8.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_9.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_10.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_11.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_12.csv'])
 
@@ -12,7 +21,7 @@ for file_path in features_file_paths:
     feature_dataframe['os_event_censored_5yr'] = feature_dataframe['os_event_censored_5yr'].astype(bool)
     feature_dataframes.append(feature_dataframe)
 
-data_set_num = 10
+data_set_num = 1
 
 for dataset in feature_dataframes:
     features = dataset.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
@@ -27,7 +36,7 @@ for dataset in feature_dataframes:
     }
 
     # Create RSF model instance
-    rsf = RandomSurvivalForest()
+    rsf = RandomSurvivalForest(random_state=40)
 
     # Create GridSearchCV instance
     grid_search = GridSearchCV(estimator=rsf, param_grid=param_grid, cv=5, n_jobs=-1)
