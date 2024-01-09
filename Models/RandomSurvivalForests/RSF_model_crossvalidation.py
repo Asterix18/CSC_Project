@@ -99,7 +99,6 @@ test_time_to_event_data = best_features_test_data[['os_event_censored_5yr', 'os_
                                                                                                                   False)
 
 # Run test data through the model
-
 result = rsf.score(test_features, test_time_to_event_data)
 print(f"Unseen test data Concordance Index: {result}")
 

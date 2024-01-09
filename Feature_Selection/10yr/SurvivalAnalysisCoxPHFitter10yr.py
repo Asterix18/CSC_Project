@@ -8,11 +8,12 @@ prioritize_bestP = False;
 data = pd.read_csv('../../Files/Preprocessed_Data.csv')
 data = data.drop(['os_event', 'os_months', 'os_months_censored_5yr', 'os_event_censored_5yr', 'rfs_months',
                   'rfs_event', 'rfs_months_censored_5yr', 'rfs_event_censored_5yr', 'rfs_months_censored_10yr',
-                  'tnm.m', 'PDS_call', 'cit_molecular_subtype'], axis=1)
+                  'tnm.m'], axis=1)
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 
 significant_level = 0.05
-all_features = set(data.columns) - {'os_months_censored_10yr', 'os_event_censored_10yr'}  # replace with your time and event column names
+all_features = set(data.columns) - {'os_months_censored_10yr',
+                                    'os_event_censored_10yr'}  # replace with your time and event column names
 
 best_features_set = {''}
 best_p_value = float('inf')
@@ -65,7 +66,5 @@ plt.title("Correlation Matrix of Selected Features")
 plt.savefig("./Files/10yr/CorrelationMatrixes/BestFeatures3.png")
 plt.show()
 
-
 # Save the dataframe to a new CSV file
 best_features_data.to_csv('./Files/10yr/Best_Features_3.csv', index=False)
-

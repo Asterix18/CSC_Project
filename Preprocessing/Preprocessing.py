@@ -12,6 +12,9 @@ print(data.isnull().sum())
 # Drop any columns where there are more than 100 missing values
 data = data.dropna(axis=1, thresh=len(data) - 100)
 
+# Drop the clinically insignificant columns
+data = data.drop(data[['PDS_call', 'cit_molecular_subtype']], axis = 1)
+
 # tnm.t setup
 data['tnm.t'] = data['tnm.t'].replace('T1', 1)
 data['tnm.t'] = data['tnm.t'].replace('T2', 2)
@@ -42,22 +45,12 @@ data['cimp_status'] = data['cimp_status'].replace('+', 1)
 data['mmr_status'] = data['mmr_status'].replace('pMMR', 0)
 data['mmr_status'] = data['mmr_status'].replace('dMMR', 1)
 
-# PDS_call setup
-data['PDS_call'] = data['PDS_call'].replace('PDS1', 0)
-data['PDS_call'] = data['PDS_call'].replace('PDS2', 1)
-data['PDS_call'] = data['PDS_call'].replace('PDS3', 2)
-data['PDS_call'] = data['PDS_call'].replace('Mixed', 3)
-
 # CMS setup
 data['CMS'] = data['CMS'].replace('CMS1', 0)
 data['CMS'] = data['CMS'].replace('CMS2', 1)
 data['CMS'] = data['CMS'].replace('CMS3', 2)
 data['CMS'] = data['CMS'].replace('CMS4', 3)
 data['CMS'] = data['CMS'].replace('UNK', 4)
-
-# cit molecular subtype setup
-data['cit_molecular_subtype'] = data['cit_molecular_subtype'].str.replace('C', '').astype(int)
-
 
 # Identify feature correlation to support filling in missing values
 data_correlation = data.dropna()
@@ -145,7 +138,47 @@ test_data_10yr = test_data_10yr.drop(['os_months_censored_5yr', 'os_event_censor
                     'rfs_event_censored_5yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'], axis=1)
 
 # # Save the train and test sets into separate CSV files
-train_data_5yr.to_csv('./Files/5yr/Train_Preprocessed_Data.csv', index=False)
-test_data_5yr.to_csv('./Files/5yr/Test_Preprocessed_Data.csv', index=False)
-train_data_10yr.to_csv('./Files/10yr/Train_Preprocessed_Data.csv', index=False)
-test_data_10yr.to_csv('./Files/10yr/Test_Preprocessed_Data.csv', index=False)
+train_data_5yr.to_csv('../Files/5yr/Train_Preprocessed_Data.csv', index=False)
+test_data_5yr.to_csv('../Files/5yr/Test_Preprocessed_Data.csv', index=False)
+train_data_10yr.to_csv('../Files/10yr/Train_Preprocessed_Data.csv', index=False)
+test_data_10yr.to_csv('../Files/10yr/Test_Preprocessed_Data.csv', index=False)
+
+train_count_1s = train_data_5yr['os_event_censored_5yr'].sum()
+test_count_1s = test_data_5yr['os_event_censored_5yr'].sum()
+
+counts = [train_count_1s, test_count_1s]
+labels = ['Training Set', 'Testing Set']
+
+plt.figure(figsize=(8, 6))
+sns.barplot(x=labels, y=counts)
+plt.title('Distribution of death event across 5yr train and test sets')
+plt.xlabel('Dataset')
+plt.ylabel('Count of death events')
+plt.show()
+
+train_percentage = (train_count_1s/len(train_data_5yr['os_event_censored_5yr']))*100
+test_percentage = (test_count_1s/len(test_data_5yr['os_event_censored_5yr']))*100
+
+
+print(f"Train Death Event Percentage: {train_percentage}%\nTest Death Event Percentage: {test_percentage}%\n")
+
+train_count_1s = train_data_10yr['os_event_censored_10yr'].sum()
+test_count_1s = test_data_10yr['os_event_censored_10yr'].sum()
+
+counts = [train_count_1s, test_count_1s]
+labels = ['Training Set', 'Testing Set']
+
+plt.figure(figsize=(8, 6))
+sns.barplot(x=labels, y=counts)
+plt.title('Distribution of death event across 10yr train and test sets')
+plt.xlabel('Dataset')
+plt.ylabel('Count of death events')
+plt.show()
+
+train_percentage = (train_count_1s/len(train_data_10yr['os_event_censored_10yr']))*100
+test_percentage = (test_count_1s/len(test_data_10yr['os_event_censored_10yr']))*100
+
+
+print(f"Train Death Event Percentage: {train_percentage}%\nTest Death Event Percentage: {test_percentage}%\n")
+
+
