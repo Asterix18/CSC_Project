@@ -4,7 +4,7 @@ from sksurv.ensemble import RandomSurvivalForest
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
 
-data = pd.read_csv('../../Files/5yr/FeatureSets/Best_Features_12.csv')
+data = pd.read_csv('../../Files/5yr/FeatureSets/Best_Features_6.csv')
 data['os_event_censored_5yr'] = data['os_event_censored_5yr'].astype(bool)
 features = data.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
 time_to_event_data = data[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(index=False)

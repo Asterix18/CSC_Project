@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 prioritize_bestP = False
 
 # Load in data
-data_initial = pd.read_csv('../Files/5yr/Train_Preprocessed_Data.csv')
+data_initial = pd.read_csv('../../Files/5yr/Train_Preprocessed_Data.csv')
 
 # Drop any clinically insignificant or unsuitable columns
-data = data_initial.drop(['tnm.m'], axis=1)
+data = data_initial.drop(['tnm.m', 'cin_status'], axis=1)
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 
 significant_level = 0.05
@@ -67,5 +67,5 @@ plt.title("Correlation Matrix of Selected Features")
 plt.show()
 
 # Save the dataframe to a new CSV file
-# plt.savefig("../Files/5yr/CorrelationMatrixes/BestFeatures9.png")
+#plt.savefig("../Files/5yr/CorrelationMatrixes/BestFeatures9.png")
 # best_features_data.to_csv('../Files/5yr/Best_Features_9.csv', index=False)
