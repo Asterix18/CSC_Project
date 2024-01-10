@@ -139,11 +139,11 @@ train_data_10yr = train_data_10yr.drop(['os_months_censored_5yr', 'os_event_cens
 test_data_10yr = test_data_10yr.drop(['os_months_censored_5yr', 'os_event_censored_5yr', 'rfs_months_censored_5yr',
                     'rfs_event_censored_5yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'], axis=1)
 
-# # Save the train and test sets into separate CSV files
-train_data_5yr.to_csv('../Files/5yr/Train_Preprocessed_Data.csv', index=False)
-test_data_5yr.to_csv('../Files/5yr/Test_Preprocessed_Data.csv', index=False)
-train_data_10yr.to_csv('../Files/10yr/Train_Preprocessed_Data.csv', index=False)
-test_data_10yr.to_csv('../Files/10yr/Test_Preprocessed_Data.csv', index=False)
+# # # Save the train and test sets into separate CSV files
+# train_data_5yr.to_csv('../Files/5yr/Train_Preprocessed_Data.csv', index=False)
+# test_data_5yr.to_csv('../Files/5yr/Test_Preprocessed_Data.csv', index=False)
+# train_data_10yr.to_csv('../Files/10yr/Train_Preprocessed_Data.csv', index=False)
+# test_data_10yr.to_csv('../Files/10yr/Test_Preprocessed_Data.csv', index=False)
 
 train_count_1s = train_data_5yr['os_event_censored_5yr'].sum()
 test_count_1s = test_data_5yr['os_event_censored_5yr'].sum()

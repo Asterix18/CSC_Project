@@ -16,8 +16,7 @@ features_file_paths = (['../../Files/5yr/FeatureSets/Best_Features_1.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_8.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_9.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_10.csv',
-                        # '../../Files/5yr/FeatureSets/Best_Features_11.csv',
-                        # '../../Files/5yr/FeatureSets/Best_Features_12.csv'
+
     ])
 
 feature_dataframes = []
@@ -46,9 +45,7 @@ for feature_sets in feature_dataframes:
         time_to_event_train, time_to_event_test = time_to_event_data[train_index], time_to_event_data[test_index]
 
         # Train the model
-        #rsf = RandomSurvivalForest( min_samples_leaf=10, n_estimators=100, random_state=40)
-        rsf = RandomSurvivalForest(max_depth=5, max_features=None, min_samples_leaf=8, min_samples_split=2,
-                                   n_estimators=100, random_state=40)
+        rsf = RandomSurvivalForest( min_samples_leaf=10, n_estimators=100, random_state=40)
         rsf.fit(features_train, time_to_event_train)
 
         # Evaluate the model
