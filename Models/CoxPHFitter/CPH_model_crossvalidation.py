@@ -16,9 +16,7 @@ features_file_paths = (['../../Files/5yr/FeatureSets/Best_Features_1.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_8.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_9.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_10.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_11.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_12.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_13.csv'])
+                        ])
 
 feature_dataframes = []
 for file_path in features_file_paths:
@@ -35,6 +33,7 @@ best_feature_set_c_index = 0
 best_feature_set = None
 
 for feature_sets in feature_dataframes:
+    print(f"Feature set {feature_set_counter}: {(list(feature_sets.columns._data))}")
     c_index_scores = []
     average_c_index = 0
     fold_counter = 1
@@ -62,12 +61,12 @@ for feature_sets in feature_dataframes:
     average_c_index = np.mean(c_index_scores)
     mean_feature_importances = aggregated_feature_importances / n_splits
     print(f"Feature set {feature_set_counter} Average Concordance Index: {average_c_index}\n")
-    print(f"Feature Importances: {mean_feature_importances}")
+    #print(f"Feature Importances: {mean_feature_importances}")
     if average_c_index > best_feature_set_c_index:
         best_feature_set_c_index = average_c_index
         best_feature_set = feature_set_counter
     feature_set_counter = feature_set_counter + 1
-    print(f"Average Concordance Index: {average_c_index}")
+
 
 print(f"\nBest Feature set: {best_feature_set}\nWith a average concordance index of: {best_feature_set_c_index}")
 
