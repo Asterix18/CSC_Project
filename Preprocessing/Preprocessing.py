@@ -121,6 +121,8 @@ data['rfs_event_censored_5yr'] = data.apply(lambda row: row['rfs_event'] if row[
 data['rfs_months_censored_10yr'] = data['rfs_months'].clip(upper=120)
 data['rfs_event_censored_10yr'] = data.apply(lambda row: row['rfs_event'] if row['rfs_months'] <= 120 else 0, axis=1)
 
+data.loc[data['rfs_event_censored_5yr'] == 0, 'rfs_months_censored_5yr'] = 0
+
 # Split data into training and testing data prior to feature selection to ensure test data is unseen by the final model
 train_data_5yr, test_data_5yr = train_test_split(data, test_size=0.15, random_state=40, stratify=data[
     'os_event_censored_5yr'])

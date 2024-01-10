@@ -12,12 +12,12 @@ features_file_paths = (['../../Files/5yr/FeatureSets/Best_Features_1.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_4.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_5.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_6.csv',
-                        # '../../Files/5yr/FeatureSets/Best_Features_7.csv',
-                        # '../../Files/5yr/FeatureSets/Best_Features_8.csv',
-                        # '../../Files/5yr/FeatureSets/Best_Features_9.csv',
-                        # '../../Files/5yr/FeatureSets/Best_Features_10.csv',
-                        #'../../Files/5yr/FeatureSets/Best_Features_11.csv',
-                        #'../../Files/5yr/FeatureSets/Best_Features_12.csv'
+                        '../../Files/5yr/FeatureSets/Best_Features_7.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_8.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_9.csv',
+                        '../../Files/5yr/FeatureSets/Best_Features_10.csv',
+                        # '../../Files/5yr/FeatureSets/Best_Features_11.csv',
+                        # '../../Files/5yr/FeatureSets/Best_Features_12.csv'
     ])
 
 feature_dataframes = []
@@ -27,7 +27,7 @@ for file_path in features_file_paths:
     feature_dataframes.append(feature_dataframe)
 
 # K-Fold setup
-kf = KFold(n_splits=10, shuffle=True, random_state=40)
+kf = KFold(n_splits=5, shuffle=True, random_state=40)
 
 feature_set_counter = 1
 best_feature_set_c_index = 0
@@ -35,6 +35,7 @@ best_feature_set = None
 average_c_indices = []
 
 for feature_sets in feature_dataframes:
+    print(f"Feature set {feature_set_counter}: {(list(feature_sets.columns._data))}")
     c_indices = []
     fold_counter = 1
     average_c_index = 0
@@ -53,18 +54,18 @@ for feature_sets in feature_dataframes:
         # Evaluate the model
         result = rsf.score(features_test, time_to_event_test)
         c_indices.append(result)
-        print(f"Fold {fold_counter} Concordance Index: {result}")
+        #print(f"Fold {fold_counter} Concordance Index: {result}")
 
         # Calculate Feature Importances
         importance_result = permutation_importance(rsf, features_test, time_to_event_test, n_repeats=15,
                                                    random_state=42)
 
         # Organize and print feature importances
-        importance_df = pd.DataFrame({
-            'Feature': features_test.columns,
-            'Importance': importance_result.importances_mean
-        }).sort_values(by='Importance', ascending=False)
-        print(importance_df)
+        # importance_df = pd.DataFrame({
+        #     'Feature': features_test.columns,
+        #     'Importance': importance_result.importances_mean
+        # }).sort_values(by='Importance', ascending=False)
+        # print(importance_df)
 
         fold_counter = fold_counter + 1
 

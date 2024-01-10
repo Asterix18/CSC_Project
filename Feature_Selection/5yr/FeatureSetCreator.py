@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 data_initial = pd.read_csv('../../Files/5yr/Train_Preprocessed_Data.csv')
 
 data = data_initial.drop(
-    ['tnm.m', 'cin_status', 'tnm.t', 'tnm.n', 'mmr_status', 'cin_status', 'tp53_mutation',
-     'CMS', 'rfs_event_censored_5yr'
+    ['tnm.m', 'tnm.t',
+     'tnm.n', 'tnm.m',
+     'tp53_mutation'
      ], axis=1)
 # 'tnm.m', 'cin_status', 'rfs_months_censored_5yr', 'sex', 'age_at_diagnosis_in_years', 'tnm_stage', 'tnm.t',
 # 'tnm.n', 'tnm.m', 'tumour_location', 'chemotherapy_adjuvant', 'mmr_status', 'cimp_status', 'cin_status',
@@ -15,4 +16,4 @@ data = data_initial.drop(
 # 'rfs_months_censored_5yr', 'rfs_event_censored_5yr'
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 
-data.to_csv('../../Files/5yr/FeatureSets/Best_Features_6.csv', index=False)
+data.to_csv('../../Files/5yr/FeatureSets/Best_Features_10.csv', index=False)
