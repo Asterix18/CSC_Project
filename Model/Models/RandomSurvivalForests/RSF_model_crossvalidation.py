@@ -4,26 +4,34 @@ import seaborn as sns
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.model_selection import KFold
 from sklearn.inspection import permutation_importance
+from sklearn.preprocessing import StandardScaler
 
 # Load data
-features_file_paths = (['../../Files/5yr/FeatureSets/Best_Features_1.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_2.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_3.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_4.csv',
+features_file_paths = ([#'../../Files/5yr/FeatureSets/Best_Features_1.csv',
+                        #'../../Files/5yr/FeatureSets/Best_Features_2.csv',
+                        # '../../Files/5yr/FeatureSets/Best_Features_3.csv',
+                        # '../../Files/5yr/FeatureSets/Best_Features_4.csv',
                         '../../Files/5yr/FeatureSets/Best_Features_5.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_6.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_7.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_8.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_9.csv',
-                        '../../Files/5yr/FeatureSets/Best_Features_10.csv',
+                        #'../../Files/5yr/FeatureSets/Best_Features_6.csv',
+                        #'../../Files/5yr/FeatureSets/Best_Features_7.csv',
+                        # '../../Files/5yr/FeatureSets/Best_Features_8.csv',
+                        # '../../Files/5yr/FeatureSets/Best_Features_9.csv',
+                        #'../../Files/5yr/FeatureSets/Best_Features_10.csv',
 
     ])
+
+scaler = StandardScaler()
+
+
 
 feature_dataframes = []
 for file_path in features_file_paths:
     feature_dataframe = pd.read_csv(file_path)
     feature_dataframe['os_event_censored_5yr'] = feature_dataframe['os_event_censored_5yr'].astype(bool)
+
     feature_dataframes.append(feature_dataframe)
+
+
 
 # K-Fold setup
 kf = KFold(n_splits=5, shuffle=True, random_state=40)
@@ -43,15 +51,20 @@ for feature_sets in feature_dataframes:
     for train_index, test_index in kf.split(features):
         features_train, features_test = features.iloc[train_index], features.iloc[test_index]
         time_to_event_train, time_to_event_test = time_to_event_data[train_index], time_to_event_data[test_index]
-
         # Train the model
-        rsf = RandomSurvivalForest( min_samples_leaf=10, n_estimators=100, random_state=40)
-        rsf.fit(features_train, time_to_event_train)
+        rsf = RandomSurvivalForest(max_depth=3, max_features='sqrt', min_samples_leaf=8, min_samples_split=2,
+                                   n_estimators=400, random_state=40)
+        # Best Parameters for data set 2: {'max_depth': 3, 'max_features': None, 'min_samples_leaf': 1, 'min_samples_split': 10, 'n_estimators': 200}
+        # Best Parameters for data set 5: {'max_depth': 3, 'max_features': 'sqrt', 'min_samples_leaf': 8, 'min_samples_split': 2, 'n_estimators': 100}
+        # Best Parameters for data set 6: {'max_depth': 3, 'max_features': 'sqrt', 'min_samples_leaf': 8, 'min_samples_split': 2, 'n_estimators': 400}
+        # Best Parameters for data set 7: {'max_depth': 3, 'max_features': 'sqrt', 'min_samples_leaf': 8, 'min_samples_split': 2, 'n_estimators': 200}
+        # Best Parameters for data set 10: {'max_depth': 3, 'max_features': 'sqrt', 'min_samples_leaf': 2, 'min_samples_split': 15, 'n_estimators': 100}
 
+        rsf.fit(features_train, time_to_event_train)
         # Evaluate the model
         result = rsf.score(features_test, time_to_event_test)
         c_indices.append(result)
-        #print(f"Fold {fold_counter} Concordance Index: {result}")
+        print(f"Fold {fold_counter} Concordance Index: {result}")
 
         # Calculate Feature Importances
         importance_result = permutation_importance(rsf, features_test, time_to_event_test, n_repeats=15,
@@ -81,7 +94,8 @@ features = best_features_for_model.drop(['os_event_censored_5yr', 'os_months_cen
 time_to_event_data = best_features_for_model[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(
     index=False)
 
-rsf = RandomSurvivalForest( min_samples_leaf=10, n_estimators=100, random_state=40)
+rsf = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=2, min_samples_split=15, n_estimators=100, random_state=40)
+
 rsf.fit(features, time_to_event_data)
 
 # Load in test data

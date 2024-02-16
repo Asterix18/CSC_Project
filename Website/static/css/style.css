@@ -1,0 +1,57 @@
+/* style.css */
+html, body {
+  height: auto; /* Instead of 100vh which might cause issues with the address bar on some mobile browsers */
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+body {
+    background-color: #add8e6; /* Light blue background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.form-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
+    width: 50%;
+    max-width: 500px;
+    margin-top: 20px;
+  margin-bottom: 20px;
+}
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+label {
+    margin-bottom: 5px;
+    margin-right: 10px;
+    display: block;
+    font-weight: bold;
+}
+input, button {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #0056b3;
+}
+.form-group {
+    margin-bottom: 10px;
+ }
+select {
+  width: 100%; /* Make all select boxes full width of their parent container */
+  padding: 8px; /* Adjust padding to your preference */
+  margin-bottom: 10px; /* Space out the select boxes */
+  border: 1px solid #ccc; /* Consistent border styling */
+  border-radius: 4px; /* Rounded corners for aesthetics */
+}

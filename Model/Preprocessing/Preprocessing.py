@@ -122,6 +122,7 @@ data['rfs_months_censored_10yr'] = data['rfs_months'].clip(upper=120)
 data['rfs_event_censored_10yr'] = data.apply(lambda row: row['rfs_event'] if row['rfs_months'] <= 120 else 0, axis=1)
 
 data.loc[data['rfs_event_censored_5yr'] == 0, 'rfs_months_censored_5yr'] = 0
+data.loc[data['rfs_event_censored_10yr'] == 0, 'rfs_months_censored_10yr'] = 0
 
 # Split data into training and testing data prior to feature selection to ensure test data is unseen by the final model
 train_data_5yr, test_data_5yr = train_test_split(data, test_size=0.15, random_state=40, stratify=data[
@@ -140,10 +141,10 @@ test_data_10yr = test_data_10yr.drop(['os_months_censored_5yr', 'os_event_censor
                     'rfs_event_censored_5yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'], axis=1)
 
 # # # Save the train and test sets into separate CSV files
-# train_data_5yr.to_csv('../Files/5yr/Train_Preprocessed_Data.csv', index=False)
-# test_data_5yr.to_csv('../Files/5yr/Test_Preprocessed_Data.csv', index=False)
-# train_data_10yr.to_csv('../Files/10yr/Train_Preprocessed_Data.csv', index=False)
-# test_data_10yr.to_csv('../Files/10yr/Test_Preprocessed_Data.csv', index=False)
+train_data_5yr.to_csv('../Files/5yr/Train_Preprocessed_Data.csv', index=False)
+test_data_5yr.to_csv('../Files/5yr/Test_Preprocessed_Data.csv', index=False)
+train_data_10yr.to_csv('../Files/10yr/Train_Preprocessed_Data.csv', index=False)
+test_data_10yr.to_csv('../Files/10yr/Test_Preprocessed_Data.csv', index=False)
 
 train_count_1s = train_data_5yr['os_event_censored_5yr'].sum()
 test_count_1s = test_data_5yr['os_event_censored_5yr'].sum()

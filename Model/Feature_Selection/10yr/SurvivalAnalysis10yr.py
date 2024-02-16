@@ -3,9 +3,11 @@ from lifelines.statistics import logrank_test
 import matplotlib.pyplot as plt
 import pandas as pd
 
-data = pd.read_csv('../../Files/Preprocessed_Data.csv')
+data = pd.read_csv('../../Files/10yr/Train_Preprocessed_Data.csv')
 
 kmf = KaplanMeierFitter()
+confidence_intervals_off = False
+
 x_axis_limits = (0, data['os_months_censored_10yr'].max())
 y_axis_limits = (0, 1)
 

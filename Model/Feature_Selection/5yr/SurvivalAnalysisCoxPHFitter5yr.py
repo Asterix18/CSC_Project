@@ -9,7 +9,7 @@ prioritize_bestP = False
 data_initial = pd.read_csv('../../Files/5yr/Train_Preprocessed_Data.csv')
 
 # Drop any clinically insignificant or unsuitable columns
-data = data_initial.drop(['tnm.m', 'cin_status'], axis=1)
+data = data_initial.drop(['tnm.m', 'cin_status', 'rfs_months_censored'], axis=1)
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 
 significant_level = 0.05

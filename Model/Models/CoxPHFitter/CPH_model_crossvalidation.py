@@ -24,7 +24,7 @@ for file_path in features_file_paths:
     feature_dataframes.append(feature_dataframe)
 
 # Define the number of folds for cross-validation
-n_splits = 5
+n_splits = 10
 
 # Initialize KFold
 kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)

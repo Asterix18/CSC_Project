@@ -5,9 +5,8 @@ import matplotlib.pyplot as plt
 
 prioritize_bestP = False
 
-data = pd.read_csv('../../Files/Preprocessed_Data.csv')
-data = data.drop(['os_event', 'os_months', 'os_months_censored_5yr', 'os_event_censored_5yr', 'rfs_months',
-                  'rfs_event', 'rfs_months_censored_5yr', 'rfs_event_censored_5yr', 'rfs_months_censored_10yr',
+data = pd.read_csv('../../Files/10yr/Train_Preprocessed_Data.csv')
+data = data.drop(['rfs_event', 'rfs_months_censored_5yr', 'rfs_event_censored_5yr', 'rfs_months_censored_10yr',
                   'tnm.m'], axis=1)
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 

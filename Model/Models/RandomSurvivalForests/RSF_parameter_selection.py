@@ -16,7 +16,7 @@ for file_path in features_file_paths:
     feature_dataframes.append(feature_dataframe)
 
 feature_set_num = [2, 5, 6, 7, 10]
-counter = 1
+counter = 0
 
 for dataset in feature_dataframes:
     features = dataset.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
@@ -42,3 +42,9 @@ for dataset in feature_dataframes:
     # Print the best parameters
     print(f"Best Parameters for data set {feature_set_num[counter]}: {grid_search.best_params_}")
     counter = counter + 1
+
+# Best Parameters for data set 2: {'max_depth': 3, 'max_features': None, 'min_samples_leaf': 1, 'min_samples_split': 10, 'n_estimators': 200}
+# Best Parameters for data set 5: {'max_depth': 3, 'max_features': 'sqrt', 'min_samples_leaf': 8, 'min_samples_split': 2, 'n_estimators': 100}
+# Best Parameters for data set 6: {'max_depth': 3, 'max_features': 'sqrt', 'min_samples_leaf': 8, 'min_samples_split': 2, 'n_estimators': 400}
+# Best Parameters for data set 7: {'max_depth': 3, 'max_features': 'sqrt', 'min_samples_leaf': 8, 'min_samples_split': 2, 'n_estimators': 200}
+# Best Parameters for data set 10: {'max_depth': 3, 'max_features': 'sqrt', 'min_samples_leaf': 2, 'min_samples_split': 15, 'n_estimators': 100}

@@ -4,12 +4,11 @@ from sksurv.ensemble import RandomSurvivalForest
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
 
-data = pd.read_csv('../../Files/5yr/FeatureSets/Best_Features_6.csv')
+data = pd.read_csv('../../Files/5yr/FeatureSets/Best_Features_5.csv')
 data['os_event_censored_5yr'] = data['os_event_censored_5yr'].astype(bool)
 features = data.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
 time_to_event_data = data[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(index=False)
-rsf = RandomSurvivalForest(max_depth=5, max_features=None, min_samples_leaf=8, min_samples_split=2,
-                           n_estimators=100, random_state=40)
+rsf = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=2, min_samples_split=10, n_estimators=100, random_state=40)
 rsf.fit(features, time_to_event_data)
 
 # Load in test data
@@ -43,16 +42,16 @@ print(importance_df)
 
 # Display probabilities for first 5 and last 5 entries in test data (sorted by age)
 X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
-X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
+X_test_sel = pd.concat((X_test_sorted.head(20), X_test_sorted.tail(20)))
 
 survival = rsf.predict_survival_function(X_test_sel, return_array=True)
 
 for i, s in enumerate(survival):
     plt.step(rsf.unique_times_, s, where="post", label=str(i))
 plt.ylabel("Survival probability")
-plt.xlabel("Time in days")
-plt.legend()
+plt.xlabel("Time in months")
 plt.grid(True)
+plt.title("Feature Set 5 Patient Survival Probabilities")
 plt.show()
 print(pd.Series(rsf.predict(X_test_sel)))
 
