@@ -227,7 +227,7 @@ plt.show()
 
 # ****** Relapse Event ******
 # Relapsed
-relapse = data[data['rfs_event'] == 1]
+relapse = data[data['rfs_event_censored_10yr'] == 1]
 # Fit the model
 kmf.fit(durations=
         relapse['os_months_censored_10yr'], event_observed=relapse['os_event_censored_10yr'], label="Relapse")
@@ -236,7 +236,7 @@ plt.figure(figsize=(10, 6))
 kmf.plot_survival_function()
 
 # Did not relapse
-no_relapse = data[data['rfs_event'] == 0]
+no_relapse = data[data['rfs_event_censored_10yr'] == 0]
 # Fit the model
 kmf.fit(durations=no_relapse['os_months_censored_10yr'], event_observed=no_relapse['os_event_censored_10yr'],
         label="No Relapse")
@@ -326,118 +326,147 @@ plt.grid(True)
 plt.show()
 
 # ****** tnm.t ******
-# Stage 2 and 3
-tnm_t3 = data[data['tnm.t'] == 3]
-# Fit the model
-kmf.fit(durations=
-        tnm_t3['os_months_censored_10yr'], event_observed=tnm_t3['os_event_censored_10yr'], label="T2 and T3")
-# Plot the survival curve
-plt.figure(figsize=(10, 6))
-kmf.plot_survival_function()
+for tnm_t_category in data['tnm.t'].unique():
+    mask = data['tnm.t'] == tnm_t_category
+    kmf.fit(durations=data[mask]['os_months_censored_10yr'],
+            event_observed=data[mask]['os_event_censored_10yr'],
+            label=str(tnm_t_category))
+    if confidence_intervals_off:
+        kmf.plot_survival_function(ci_show=False)
+    else:
+        kmf.plot_survival_function()
 
-# Stage 4
-tnm_t4 = data[data['tnm.t'] == 4]
-# Fit the model
-kmf.fit(durations=tnm_t4['os_months_censored_10yr'], event_observed=tnm_t4['os_event_censored_10yr'],
-        label="T4")
-# Plot the survival curve
-kmf.plot_survival_function()
-plt.title('10 year Kaplan-Meier Survival Curve - tnm.t stage')
-plt.xlabel('Time in Months')
+plt.title('Survival curves by tnm.t category up to 5 years')
+plt.xlabel('Time in months')
 plt.ylabel('Survival Probability')
-plt.xlim(x_axis_limits)
-plt.ylim(y_axis_limits)
-plt.grid(True)
+plt.legend(title='tnm.t category')
+# plt.savefig('../../Files/10yr/KaplanMeierCurves/tnm_t.png')
 plt.show()
 
-# ****** LogRank Tests ******
-# LogRank test - Ages
-results = logrank_test(df_age_under_70['os_months_censored_10yr'], df_age_over_70['os_months_censored_10yr'],
-                       event_observed_A=df_age_under_70['os_event_censored_10yr'],
-                       event_observed_B=df_age_over_70['os_event_censored_10yr'])
-# Print the results
-print('Age p-value:', results.p_value)
+# ****** tnm.n ******
+for tnm_n_category in data['tnm.n'].unique():
+    mask = data['tnm.n'] == tnm_n_category
+    kmf.fit(durations=data[mask]['os_months_censored_10yr'],
+            event_observed=data[mask]['os_event_censored_10yr'],
+            label=str(tnm_n_category))
+    if confidence_intervals_off:
+        kmf.plot_survival_function(ci_show=False)
+    else:
+        kmf.plot_survival_function()
 
-# LogRank test - Gender
-results = logrank_test(df_males['os_months_censored_10yr'], df_females['os_months_censored_10yr'],
-                       event_observed_A=df_males['os_event_censored_10yr'],
-                       event_observed_B=df_females['os_event_censored_10yr'])
-# Print the results
-print('Sex p-value:', results.p_value)
+plt.title('Survival curves by tnm.n category up to 5 years')
+plt.xlabel('Time in months')
+plt.ylabel('Survival Probability')
+plt.legend(title='tnm.n category')
+# plt.savefig('../../Files/10yr/KaplanMeierCurves/tnm_n.png')
+plt.show()
 
-# LogRank test - Chemotherapy
-results = logrank_test(received_chemo['os_months_censored_10yr'], did_not_receive_chemo['os_months_censored_10yr'],
-                       event_observed_A=received_chemo['os_event_censored_10yr'],
-                       event_observed_B=did_not_receive_chemo['os_event_censored_10yr'])
-# Print the results
-print('Chemotherapy p-value:', results.p_value)
+# ****** CMS ******
+for CMS_category in data['CMS'].unique():
+    mask = data['CMS'] == CMS_category
+    kmf.fit(durations=data[mask]['os_months_censored_10yr'],
+            event_observed=data[mask]['os_event_censored_10yr'],
+            label=str(CMS_category))
+    if confidence_intervals_off:
+        kmf.plot_survival_function(ci_show=False)
+    else:
+        kmf.plot_survival_function()
 
-# LogRank test - TP53 Mutation
-results = logrank_test(wild_type['os_months_censored_10yr'], mutated['os_months_censored_10yr'],
-                       event_observed_A=wild_type['os_event_censored_10yr'],
-                       event_observed_B=mutated['os_event_censored_10yr'])
-# Print the results
-print('TP53 Mutation p-value:', results.p_value)
+plt.title('Survival curves by CMS category up to 5 years')
+plt.xlabel('Time in months')
+plt.ylabel('Survival Probability')
+plt.legend(title='CMS')
+# plt.savefig('../../Files/10yr/KaplanMeierCurves/CMS.png')
+plt.show()
 
-# LogRank test - BRAF Mutation
-results = logrank_test(braf_wild_type['os_months_censored_10yr'], braf_mutated['os_months_censored_10yr'],
-                       event_observed_A=braf_wild_type['os_event_censored_10yr'],
-                       event_observed_B=braf_mutated['os_event_censored_10yr'])
-# Print the results
-print('BRAF Mutation p-value:', results.p_value)
-
-# LogRank test - BRAF Mutation
-results = logrank_test(kras_wild_type['os_months_censored_10yr'], kras_mutated['os_months_censored_10yr'],
-                       event_observed_A=kras_wild_type['os_event_censored_10yr'],
-                       event_observed_B=kras_mutated['os_event_censored_10yr'])
-# Print the results
-print('KRAS Mutation p-value:', results.p_value)
-
-# LogRank test - Tumour Location
-results = logrank_test(proximal['os_months_censored_10yr'], distal['os_months_censored_10yr'],
-                       event_observed_A=proximal['os_event_censored_10yr'],
-                       event_observed_B=distal['os_event_censored_10yr'])
-# Print the results
-print('Tumour Location p-value:', results.p_value)
-
-# LogRank test - TNM Stage
-results = logrank_test(stage_2_tnm['os_months_censored_10yr'], stage_3_tnm['os_months_censored_10yr'],
-                       event_observed_A=stage_2_tnm['os_event_censored_10yr'],
-                       event_observed_B=stage_3_tnm['os_event_censored_10yr'])
-# Print the results
-print('TNM stage p-value:', results.p_value)
-
-# LogRank test - TNM Stage
-results = logrank_test(relapse['os_months_censored_10yr'], no_relapse['os_months_censored_10yr'],
-                       event_observed_A=relapse['os_event_censored_10yr'],
-                       event_observed_B=no_relapse['os_event_censored_10yr'])
-# Print the results
-print('Relapse Event p-value:', results.p_value)
-
-# LogRank test - MMR Status
-results = logrank_test(pMMR['os_months_censored_10yr'], dMMR['os_months_censored_10yr'],
-                       event_observed_A=pMMR['os_event_censored_10yr'],
-                       event_observed_B=dMMR['os_event_censored_10yr'])
-# Print the results
-print('MMR Status p-value:', results.p_value)
-
-# LogRank test - CIMP Status
-results = logrank_test(cimp_plus['os_months_censored_10yr'], cimp_minus['os_months_censored_10yr'],
-                       event_observed_A=cimp_plus['os_event_censored_10yr'],
-                       event_observed_B=cimp_minus['os_event_censored_10yr'])
-# Print the results
-print('CIMP Status p-value:', results.p_value)
-
-# LogRank test - CIN Status
-results = logrank_test(cin_plus['os_months_censored_10yr'], cin_minus['os_months_censored_10yr'],
-                       event_observed_A=cin_plus['os_event_censored_10yr'],
-                       event_observed_B=cin_minus['os_event_censored_10yr'])
-# Print the results
-print('CIN Status p-value:', results.p_value)
-
-# LogRank test - tnm.t
-results = logrank_test(tnm_t3['os_months_censored_10yr'], tnm_t4['os_months_censored_10yr'],
-                       event_observed_A=tnm_t3['os_event_censored_10yr'],
-                       event_observed_B=tnm_t4['os_event_censored_10yr'])
-# Print the results
-print('tnm.t p-value:', results.p_value)
+# # ****** LogRank Tests ******
+# # LogRank test - Ages
+# results = logrank_test(df_age_under_70['os_months_censored_10yr'], df_age_over_70['os_months_censored_10yr'],
+#                        event_observed_A=df_age_under_70['os_event_censored_10yr'],
+#                        event_observed_B=df_age_over_70['os_event_censored_10yr'])
+# # Print the results
+# print('Age p-value:', results.p_value)
+#
+# # LogRank test - Gender
+# results = logrank_test(df_males['os_months_censored_10yr'], df_females['os_months_censored_10yr'],
+#                        event_observed_A=df_males['os_event_censored_10yr'],
+#                        event_observed_B=df_females['os_event_censored_10yr'])
+# # Print the results
+# print('Sex p-value:', results.p_value)
+#
+# # LogRank test - Chemotherapy
+# results = logrank_test(received_chemo['os_months_censored_10yr'], did_not_receive_chemo['os_months_censored_10yr'],
+#                        event_observed_A=received_chemo['os_event_censored_10yr'],
+#                        event_observed_B=did_not_receive_chemo['os_event_censored_10yr'])
+# # Print the results
+# print('Chemotherapy p-value:', results.p_value)
+#
+# # LogRank test - TP53 Mutation
+# results = logrank_test(wild_type['os_months_censored_10yr'], mutated['os_months_censored_10yr'],
+#                        event_observed_A=wild_type['os_event_censored_10yr'],
+#                        event_observed_B=mutated['os_event_censored_10yr'])
+# # Print the results
+# print('TP53 Mutation p-value:', results.p_value)
+#
+# # LogRank test - BRAF Mutation
+# results = logrank_test(braf_wild_type['os_months_censored_10yr'], braf_mutated['os_months_censored_10yr'],
+#                        event_observed_A=braf_wild_type['os_event_censored_10yr'],
+#                        event_observed_B=braf_mutated['os_event_censored_10yr'])
+# # Print the results
+# print('BRAF Mutation p-value:', results.p_value)
+#
+# # LogRank test - BRAF Mutation
+# results = logrank_test(kras_wild_type['os_months_censored_10yr'], kras_mutated['os_months_censored_10yr'],
+#                        event_observed_A=kras_wild_type['os_event_censored_10yr'],
+#                        event_observed_B=kras_mutated['os_event_censored_10yr'])
+# # Print the results
+# print('KRAS Mutation p-value:', results.p_value)
+#
+# # LogRank test - Tumour Location
+# results = logrank_test(proximal['os_months_censored_10yr'], distal['os_months_censored_10yr'],
+#                        event_observed_A=proximal['os_event_censored_10yr'],
+#                        event_observed_B=distal['os_event_censored_10yr'])
+# # Print the results
+# print('Tumour Location p-value:', results.p_value)
+#
+# # LogRank test - TNM Stage
+# results = logrank_test(stage_2_tnm['os_months_censored_10yr'], stage_3_tnm['os_months_censored_10yr'],
+#                        event_observed_A=stage_2_tnm['os_event_censored_10yr'],
+#                        event_observed_B=stage_3_tnm['os_event_censored_10yr'])
+# # Print the results
+# print('TNM stage p-value:', results.p_value)
+#
+# # LogRank test - TNM Stage
+# results = logrank_test(relapse['os_months_censored_10yr'], no_relapse['os_months_censored_10yr'],
+#                        event_observed_A=relapse['os_event_censored_10yr'],
+#                        event_observed_B=no_relapse['os_event_censored_10yr'])
+# # Print the results
+# print('Relapse Event p-value:', results.p_value)
+#
+# # LogRank test - MMR Status
+# results = logrank_test(pMMR['os_months_censored_10yr'], dMMR['os_months_censored_10yr'],
+#                        event_observed_A=pMMR['os_event_censored_10yr'],
+#                        event_observed_B=dMMR['os_event_censored_10yr'])
+# # Print the results
+# print('MMR Status p-value:', results.p_value)
+#
+# # LogRank test - CIMP Status
+# results = logrank_test(cimp_plus['os_months_censored_10yr'], cimp_minus['os_months_censored_10yr'],
+#                        event_observed_A=cimp_plus['os_event_censored_10yr'],
+#                        event_observed_B=cimp_minus['os_event_censored_10yr'])
+# # Print the results
+# print('CIMP Status p-value:', results.p_value)
+#
+# # LogRank test - CIN Status
+# results = logrank_test(cin_plus['os_months_censored_10yr'], cin_minus['os_months_censored_10yr'],
+#                        event_observed_A=cin_plus['os_event_censored_10yr'],
+#                        event_observed_B=cin_minus['os_event_censored_10yr'])
+# # Print the results
+# print('CIN Status p-value:', results.p_value)
+#
+# # LogRank test - tnm.t
+# results = logrank_test(tnm_t3['os_months_censored_10yr'], tnm_t4['os_months_censored_10yr'],
+#                        event_observed_A=tnm_t3['os_event_censored_10yr'],
+#                        event_observed_B=tnm_t4['os_event_censored_10yr'])
+# # Print the results
+# print('tnm.t p-value:', results.p_value)

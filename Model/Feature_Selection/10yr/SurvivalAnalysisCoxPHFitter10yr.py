@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 prioritize_bestP = False
 
 data = pd.read_csv('../../Files/10yr/Train_Preprocessed_Data.csv')
-data = data.drop(['rfs_event', 'rfs_months_censored_5yr', 'rfs_event_censored_5yr', 'rfs_months_censored_10yr',
-                  'tnm.m'], axis=1)
+data = data.drop(['rfs_months_censored_10yr','tnm.m'], axis=1)
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 
 significant_level = 0.05
@@ -62,8 +61,8 @@ correlation_matrix = best_features_data.drop(['os_months_censored_10yr', 'os_eve
 plt.figure(figsize=(10, 10))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
 plt.title("Correlation Matrix of Selected Features")
-plt.savefig("./Files/10yr/CorrelationMatrixes/BestFeatures3.png")
+# plt.savefig("./Files/10yr/CorrelationMatrixes/BestFeatures3.png")
 plt.show()
 
 # Save the dataframe to a new CSV file
-best_features_data.to_csv('./Files/10yr/Best_Features_3.csv', index=False)
+# best_features_data.to_csv('./Files/10yr/Best_Features_3.csv', index=False)
