@@ -1,2 +1,7 @@
+To update the environment.yml delete the current one and run:
+conda env create -f environment.yml
+
 To set up the environment run:
 conda env create -f environment.yml
+
+To run the webpage run

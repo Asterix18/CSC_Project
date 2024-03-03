@@ -2,19 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>5 and 10 Year Survival Predictor</title>
+    <title>PredictCRC</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/svg" href="static/images/Logo_trans.svg">
 </head>
 <body>
+    <header class="main-header">
+        <div class="logo-container">
+            <img src="static/images/Logo_full.svg" alt="PCRC Logo" class="logo">
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#">New Prediction</a></li>
+                <li><a href="#">Previous Predictions</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
     <div class="form-container">
-        <h2> and 10 Year Survival Predictor</h2>
         <form action="/predict" method="post">
             <div class="form">
-                <label for="age">Age:</label>
-                <input type="number" id="age" name="age" required min="20" placeholder="Enter age">
+                <label for="forename">Forename</label>
+                <input  type="text" id="forename" name="forename" placeholder="Enter forename" required>
             </div>
             <div class="form">
-                <label for="tnm_stage">TNM Stage:</label>
+                <label for="surname">Surname</label>
+                <input  type="text" id="surname" name="surname" placeholder="Enter surname" required>
+            </div>
+            <div class="form">
+                <label for="age">Age</label>
+                <input  type="number" id="age" name="age" required min="20" max="100" placeholder="Enter age">
+            </div>
+            <div class="form">
+                <label for="tnm_stage">TNM Stage</label>
                 <select name="tnm_stage" id="tnm_stage" required>
                     <option value="" selected disabled>select an option</option>
                     <option value="0">2</option>
@@ -22,7 +43,7 @@
                 </select>
             </div>
             <div class="form">
-                <label for="mmr_status">MMR Status:</label>
+                <label for="mmr_status">MMR Status</label>
                 <select name="mmr_status" id="mmr_status" required>
                     <option value="" selected disabled>select an option</option>
                     <option value="0">pMMR</option>
@@ -30,7 +51,7 @@
                 </select><br>
             </div>
             <div class="form">
-                <label for="cimp_status">CIMP status:</label>
+                <label for="cimp_status">CIMP status</label>
                 <select name="cimp_status" id="cimp_status" required>
                     <option value="" selected disabled>select an option</option>
                     <option value="0">-</option>
@@ -38,7 +59,7 @@
                 </select><br>
             </div>
             <div class="form">
-                <label for="rfs_event_censored_5yr">Relapse Occurred:</label>
+                <label for="rfs_event_censored_5yr">Relapse Occurred</label>
                 <select name="rfs_event_censored_5yr" id="rfs_event_censored_5yr" required>
                     <option value="" selected disabled>select an option</option>
                     <option value="0">No</option>
@@ -46,7 +67,7 @@
                 </select><br>
             </div>
             <div class="form">
-                <label for="sex_Male">Sex:</label>
+                <label for="sex_Male">Sex</label>
                 <select name="sex_Male" id="sex_Male" required>
                     <option value="" selected disabled>select an option</option>
                     <option value="False">Female</option>
@@ -54,7 +75,7 @@
                 </select><br>
             </div>
             <div class="form">
-                <label for="tumour_location_proximal">Tumour Location:</label>
+                <label for="tumour_location_proximal">Tumour Location</label>
                 <select name="tumour_location_proximal", id="tumour_location_proximal" required>
                     <option value="" selected disabled>select an option</option>
                     <option value="False">Distal</option>
@@ -62,7 +83,7 @@
                 </select><br>
             </div>
             <div class="form">
-                <label for="chemotherapy_adjuvant_Y">Chemotherapy adjuvant:</label>
+                <label for="chemotherapy_adjuvant_Y">Chemotherapy adjuvant</label>
                 <select name="chemotherapy_adjuvant_Y" id="chemotherapy_adjuvant_Y" required>
                     <option value="" selected disabled>select an option</option>
                     <option value="False">No</option>
@@ -70,14 +91,17 @@
                 </select><br>
             </div>
             <div class="form">
-                <label for="kras_mutation_WT">KRAS Mutation Type:</label>
+                <label for="kras_mutation_WT">KRAS Mutation Type</label>
                 <select name="kras_mutation_WT" id="kras_mutation_WT" required>
                     <option value="" selected disabled>select an option</option>
                     <option value="True">WT</option>
                     <option value="False">M</option>
                 </select><br>
             </div>
-            <button type="submit">Predict Survival</button>
+            <div class="button-container">
+                <button type="reset" class="clear-form-btn">Clear Form</button>
+                <button type="submit" class="predict-survival-btn">Predict Survival</button>
+            </div>
         </form>
     </div>
 

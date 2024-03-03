@@ -4,25 +4,26 @@ import pandas as pd
 import numpy as np
 
 app = Flask(__name__)
-login_info = {"mike":"password1","dave":"password2", "steve":"password3"}
+# login_info = {"mike":"password1","dave":"password2", "steve":"password3"}
 # Load model
 rsf = load('Models/rsf_model.joblib')
-feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'mmr_status', 'cimp_status', 'rfs_event_censored_5yr', 'sex_Male', 'tumour_location_proximal', 'chemotherapy_adjuvant_Y', 'kras_mutation_WT']
+feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'mmr_status', 'cimp_status', 'rfs_event_censored_5yr',
+                 'sex_Male', 'tumour_location_proximal', 'chemotherapy_adjuvant_Y', 'kras_mutation_WT']
 
 
 @app.route('/')
 def login():
-    return render_template('login.html')
+    return render_template('index.html')
 
-@app.route('/login', methods=['POST'])
-def login_post():
-    username = request.form['username']
-    password = request.form['password']
-
-    if (login_info[username] == password):
-        return redirect(url_for('form'))
-   # else:
-
+# @app.route('/login', methods=['POST'])
+# def login_post():
+#     username = request.form['username']
+#     password = request.form['password']
+#
+#     if (login_info[username] == password):
+#         return redirect(url_for('form'))
+#    # else:
+#
 
 
 
