@@ -1,25 +1,31 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>PCRC - Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="icon" type="image/svg" href="static/images/flavicon.svg">
+    <link rel="icon" type="image/svg" href="static/images/Logo_trans.svg">
 </head>
 <body>
-    <div class="form-container">
-        <h2 style="align: center;">Login</h2>
-        <form action="/login" method="post">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Login</button>
-        </form>
+<header id="login-header">
+    <div class="logo-container">
+        <img src="static/images/Logo_full.svg" alt="PCRC Logo" class="logo">
     </div>
+</header>
+<div id="login-box">
+    <div id="form-title"> <h1>PCRC Web tool Login</h1> </div>
+    <div class="login-row">
+        <label for="username">Username:</label>
+        <input  type="text" id="username" name="username" placeholder="Enter username" required>
+    </div>
+    <div class="login-row">
+        <label for="username">Password:</label>
+        <input  type="password" id="password" name="password" placeholder="Enter password" required>
+    </div>
+    <div class="button-container">
+        <button type="submit" class="clear-form-btn">Forgotten Password?</button>
+        <button type="submit" class="predict-survival-btn">Login</button>
+    </div>
+</div>
 </body>
-</html>

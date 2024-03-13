@@ -6,16 +6,15 @@ import matplotlib.pyplot as plt
 prioritize_bestP = False
 
 data = pd.read_csv('../../Files/10yr/Train_Preprocessed_Data.csv')
-data = data.drop(['rfs_months_censored_10yr','tnm.m'], axis=1)
+data = data.drop(['rfs_months_censored_10yr','tnm.m', 'cin_status', 'tnm.n', 'tnm.t'], axis=1)
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 
-significant_level = 0.05
+significant_level = 0.1
 all_features = set(data.columns) - {'os_months_censored_10yr',
                                     'os_event_censored_10yr'}  # replace with your time and event column names
 
 best_features_set = {''}
 best_p_value = float('inf')
-
 for feature_to_exclude_initially in all_features:
     current_features = all_features - {feature_to_exclude_initially}
 
@@ -50,7 +49,7 @@ cph.fit(best_features_data, duration_col='os_months_censored_10yr', event_col='o
 
 # Display the summary of the Cox model
 print(cph.summary)
-# Check the proportional hazards assumption for all variables
+#Check the proportional hazards assumption for all variables
 cph.check_assumptions(best_features_data, p_value_threshold=0.05)
 
 # Calculate the correlation matrix
@@ -61,7 +60,6 @@ correlation_matrix = best_features_data.drop(['os_months_censored_10yr', 'os_eve
 plt.figure(figsize=(10, 10))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
 plt.title("Correlation Matrix of Selected Features")
-# plt.savefig("./Files/10yr/CorrelationMatrixes/BestFeatures3.png")
 plt.show()
 
 # Save the dataframe to a new CSV file

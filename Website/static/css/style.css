@@ -16,22 +16,24 @@ html, body {
     align-items: center;
     width: auto;
     height: 100px;
-    outline: #d8d8d8 solid 1px;
+    /*outline: #d8d8d8 solid 1px;*/
 }
-.logo-container img {
-    height: 12vh;
-    width: auto;
 
+.logo-container img {
+    height: 14vh;
+    width: auto;
 }
+
 .main-nav ul {
     list-style: none;
-    padding: 0;
     margin: 0;
     display: flex;
+    padding: 0 30px 0 0;
 }
+
 .main-nav ul li {
     display: inline-block;
-    margin-left: 20px; /* Adjust as needed */
+    margin-left: 40px; /* Adjust as needed */
     padding: 0 10px; /* This adds some padding on the left and right of the list item */
     position: relative; /* Needed for the pseudo-element to position correctly */
 }
@@ -44,7 +46,7 @@ html, body {
     top: 50%; /* Center vertically */
     transform: translateY(-50%); /* This will center the line to the middle of the list item */
     height: 117px; /* This is the height of the line */
-    border-left: 1px solid #ccc; /* This creates the line with the color of your choice */
+
 }
 
 /* Optional: if you want to remove the left padding from the first list item */
@@ -65,22 +67,21 @@ html, body {
     text-decoration: none;
     color: #3D84A8;
     font-weight: bold;
-    font-size: 20px; /* Adjust font size for better readability */
+    font-size: 15px; /* Adjust font size for better readability */
 }
 
 .main-nav a:hover {
-    color: #ffcc00; /* Change hover color to match design */
+    color: #0056b3; /* Change hover color to match design */
 }
 
 .form-container {
     background-color: #ffffff; /* Light gray background for the form */
     padding: 20px 30px;
     border-radius: 15px;
-    width: 50%; /* Adjust width to better fit different screen sizes */
+    width: 45%; /* Adjust width to better fit different screen sizes */
     max-width: 800px; /* Max width for larger screens */
     margin: 40px auto; /* Center the form with automatic margins and add vertical spacing */
     outline: #d8d8d8 solid 1px;
-
 }
 
 .form {
@@ -93,56 +94,141 @@ html, body {
 
 label {
     font-weight: bold;
-    margin-right: 5px;
     flex-basis: 30%;
     text-align: right;
 }
 
+
 input, select {
-    padding: 10px;
+    padding: 10px 10px 10px 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    margin-left: auto;
-    margin-right: auto;
-    display: block; /* This makes margin auto work for centering */
+    margin-left: 15px;
+    margin-right: 17%;
 }
+
 input{
-    width: 52%; /* Adjust width to match design */
+    width: 40%; /* Adjust width to match design */
 }
+
 select{
-    width: 55%; /* Adjust width to match design */
+    width: 44%; /* Adjust width to match design */
 }
+
 button{
     padding: 10px 15px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px; /* Increase font size for better readability */
-    width: 20%
+    width: 150px;
+    height: 60px;
 }
 
 .button-container {
-    text-align: center; /* This will center the buttons if they are inline or inline-block elements */
-    padding: 10px; /* Add some padding if necessary */
-    margin-top: 20px; /* Add some space above the button container */
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px 10px 30px;
 }
 
 .predict-survival-btn {
-    background-color: #0056b3; /* Match button color to header */
+    background-color: #0056b3;
     color: white;
+    font-size: 14px;
     margin: 0 5px;
+    outline: 1px solid #0056b3;
 }
 
 .predict-survival-btn:hover {
-    background-color: #00408b; /* Darker shade on hover */
+    background-color: #00408b;
 }
 
 .clear-form-btn {
-    background-color: #d8d8d8; /* Match button color to header */
-    color: white;
+    background-color: #ffffff;
+    color: #000000;
     margin: 0 5px;
+    font-size: 14px;
+    outline: 1px solid #000000;
 }
 
 .clear-form-btn:hover {
-    background-color: #b0b0b0; /* Slightly darker grey on hover */
+    background-color: #cccccc;
 }
+
+.results-style {
+    text-align: center;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.result-label {
+    display: inline-block;
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+.result-value {
+    display: inline-block;
+}
+
+#form-title {
+    color: #3D84A8;
+    text-align: center;
+    padding-top: 30px;
+    padding-bottom: 5px;
+}
+
+#form-instruction{
+    color: #3D84A8;
+    text-align:center;
+    padding-bottom: 20px;
+}
+
+#loading{
+    text-align:center;
+}
+
+#loading-label{
+    font-weight: bold;
+    padding-bottom: 30px;
+}
+
+#loading-spinner{
+    padding: 30px;
+}
+
+#login-header{
+    background-color: #ffffff;
+    color: #3D84A8;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: auto;
+    height: 100px;
+}
+
+#login-box{
+    background-color: #ffffff;
+    padding: 20px 30px;
+    border-radius: 15px;
+    width: 50%;
+    max-width: 800px;
+    margin: 40px auto;
+    outline: #d8d8d8 solid 1px;
+}
+
+.login-row{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 15px;
+    width: 100%
+}
+
+#login-title{
+    align-content: center;
+}
+
+
+
