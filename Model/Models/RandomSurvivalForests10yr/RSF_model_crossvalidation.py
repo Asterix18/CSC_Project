@@ -10,12 +10,12 @@ from sksurv.metrics import integrated_brier_score
 from sksurv.metrics import cumulative_dynamic_auc
 
 # Setup file paths
-features_file_paths = ([#'../../Files/10yr/RSFFeatureSets/Best_Features_1.csv',
-                        # '../../Files/10yr/RSFFeatureSets/Best_Features_2.csv',
-                        # '../../Files/10yr/RSFFeatureSets/Best_Features_3.csv',
-                        # '../../Files/10yr/RSFFeatureSets/Best_Features_4.csv',
+features_file_paths = (['../../Files/10yr/RSFFeatureSets/Best_Features_1.csv',
+                        '../../Files/10yr/RSFFeatureSets/Best_Features_2.csv',
+                        '../../Files/10yr/RSFFeatureSets/Best_Features_3.csv',
+                        '../../Files/10yr/RSFFeatureSets/Best_Features_4.csv',
                         '../../Files/10yr/RSFFeatureSets/Best_Features_5.csv',
-                        # '../../Files/10yr/RSFFeatureSets/Best_Features_6.csv',
+                        '../../Files/10yr/RSFFeatureSets/Best_Features_6.csv',
 ])
 
 # Load in data sets
