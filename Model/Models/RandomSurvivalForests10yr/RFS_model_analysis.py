@@ -3,12 +3,14 @@ import numpy as np
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
+from sksurv.metrics import integrated_brier_score, cumulative_dynamic_auc
 
 data = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_5.csv')
 data['os_event_censored_10yr'] = data['os_event_censored_10yr'].astype(bool)
 features = data.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
 time_to_event_data = data[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)
-rsf = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=2, min_samples_split=10, n_estimators=100, random_state=40)
+rsf = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2, n_estimators=400,
+                           random_state=40)
 rsf.fit(features, time_to_event_data)
 
 # Load in test data
@@ -76,3 +78,21 @@ print(f"10-year survival probability: {ten_year_survival_probability}")
 # sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
 # plt.title("Correlation Matrix of Selected Features")
 # plt.show()
+
+# Run test data through the model
+result = rsf.score(test_features, test_time_to_event_data)
+
+
+times = np.array([12,60,119])
+
+print(times)
+
+rsf_probs = np.row_stack([fn(times) for fn in rsf.predict_survival_function(test_features)])
+score = integrated_brier_score(time_to_event_data, test_time_to_event_data, rsf_probs, times)
+
+rsf_chf_funcs = rsf.predict_cumulative_hazard_function(test_features, return_array=False)
+rsf_risk_scores = np.row_stack([chf(times) for chf in rsf_chf_funcs])
+
+rsf_auc, rsf_mean_auc = cumulative_dynamic_auc(time_to_event_data, test_time_to_event_data, rsf_risk_scores, times)
+
+print(f"Unseen test data:\nConcordance Index: {result}\nBrier score: {score}\nAUC: {rsf_mean_auc}")

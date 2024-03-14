@@ -67,7 +67,7 @@ for feature_sets in feature_dataframes:
         # Brier scores
         lower = 11
         upper = 60
-        times = np.arange(lower, upper, 12)
+        times = np.array([12, 36, 59])
         rsf_probs = np.row_stack([fn(times) for fn in rsf.predict_survival_function(features_test)])
         score = integrated_brier_score(time_to_event_data, time_to_event_test, rsf_probs, times)
         brier_scores.append(score)

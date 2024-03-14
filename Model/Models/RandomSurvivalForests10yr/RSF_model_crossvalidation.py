@@ -28,7 +28,7 @@ for file_path in features_file_paths:
 
 
 # K-Fold setup
-kf = KFold(n_splits=5, shuffle=True, random_state=40)
+kf = KFold(n_splits=5, shuffle=True,  random_state=40)
 
 feature_set_counter = 1
 best_feature_set_c_index = 0
@@ -62,7 +62,7 @@ for feature_sets in feature_dataframes:
         # Brier Score
         lower = 12
         upper = 120
-        times = np.arange(lower, upper, 12)
+        times = np.array([12,60,119])
         rsf_probs = np.row_stack([fn(times) for fn in rsf.predict_survival_function(features_test)])
         score = integrated_brier_score(time_to_event_data, time_to_event_test, rsf_probs, times)
         brier_scores.append(score)
@@ -157,10 +157,10 @@ rsf_risk_scores = np.row_stack([chf(times) for chf in rsf_chf_funcs])
 rsf_auc, rsf_mean_auc = cumulative_dynamic_auc(time_to_event_data, test_time_to_event_data, rsf_risk_scores, times)
 
 print(f"Unseen test data:\nConcordance Index: {result}\nBrier score: {score}\nAUC: {rsf_mean_auc}")
-
-plt.plot(times, rsf_auc, "o-", label=f"RSF (mean AUC = {rsf_mean_auc:.3f})")
-plt.xlabel("days from enrollment")
-plt.ylabel("time-dependent AUC")
-plt.legend(loc="lower center")
-plt.grid(True)
-plt.show()
+#
+# plt.plot(times, rsf_auc, "o-", label=f"RSF (mean AUC = {rsf_mean_auc:.3f})")
+# plt.xlabel("days from enrollment")
+# plt.ylabel("time-dependent AUC")
+# plt.legend(loc="lower center")
+# plt.grid(True)
+# plt.show()
