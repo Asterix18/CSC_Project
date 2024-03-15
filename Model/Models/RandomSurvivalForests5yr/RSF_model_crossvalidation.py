@@ -75,11 +75,11 @@ for feature_sets in feature_dataframes:
         #print(f"Fold {fold_counter}: Concordance Index: {result.round(3)}, Brier Score: {score.round(3)}")
 
         # Calculate Feature Importances
-        # importance_result = permutation_importance(rsf, features_test, time_to_event_test, n_repeats=15,
+        # importance_result = permutation_importance(rsf, features_validation, time_to_event_test, n_repeats=15,
         #                                            random_state=42)
         # Organize and print feature importances
         # importance_df = pd.DataFrame({
-        #     'Feature': features_test.columns,
+        #     'Feature': features_validation.columns,
         #     'Importance': importance_result.importances_mean
         # }).sort_values(by='Importance', ascending=False)
         # print(importance_df)

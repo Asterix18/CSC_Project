@@ -11,6 +11,7 @@ def score_survival_model(model, X, y):
     result = concordance_index_censored(y["os_event_censored_10yr"], y["os_months_censored_10yr"], prediction)
     return result[0]
 
+
 # Setup file paths
 features_file_paths = (['../../Files/10yr/RSFFeatureSets/Best_Features_1.csv',
                         '../../Files/10yr/RSFFeatureSets/Best_Features_2.csv',
@@ -80,13 +81,23 @@ for feature_sets in feature_dataframes:
         c_indices.append(c_index)
 
     av_c_index = sum(c_indices)/len(c_indices)
-    print(f"Average concordance index for feature set {feature_set_counter}: {av_c_index}")
+    df_current_feature_set = pd.DataFrame({
+        'Feature Set': [feature_set_counter],
+        'Alpha Score': [gcv.best_params_['alpha']],
+        'Average C-Index': [av_c_index]
+    })
+
+    feature_set_metrics.append(df_current_feature_set)
     svmModel = FastSurvivalSVM(alpha=gcv.best_params_['alpha'], max_iter=1000, tol=None, random_state=40)
     svmModel.fit(features, time_to_event_data)
-    print(f"Feature set {feature_set_counter} unseen data concordance index: {score_survival_model(svmModel, test_features, test_time_to_event_data)}")
     feature_set_counter += 1
 
 
+# Concatenate all DataFrames in the list into a single DataFrame
+df_summary = pd.concat(feature_set_metrics, ignore_index=True)
+
+# Display the final table
+print(df_summary)
 
 # def plot_performance(gcv):
 #     n_splits = gcv.cv.n_splits
