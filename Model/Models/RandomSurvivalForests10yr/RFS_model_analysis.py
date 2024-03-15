@@ -3,33 +3,36 @@ import numpy as np
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
-from sksurv.metrics import integrated_brier_score, cumulative_dynamic_auc
+from sksurv.metrics import integrated_brier_score, cumulative_dynamic_auc, brier_score
 from sklearn.model_selection import KFold
 
-def evaluate_model(x, y):
+
+def evaluate_model(t, x_test, y_test, y_train, model):
     # Evaluate the model
-
-    # Set base parameters
-    rsf_model = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2, n_estimators=400,
-                           random_state=40)
-
-    # Fit Model
-    rsf_model.fit(features_train, time_to_event_train)
-
     # Concordance Index
-    c_index = rsf_model.score(x, y)
+    c_index = model.score(x_test, y_test)
 
     # Brier Score
-    times = np.array([12, 60, 119])
-    rsf_probs = np.row_stack([fn(times) for fn in rsf_model.predict_survival_function(features_validation)])
-    brier_score = integrated_brier_score(time_to_event_data, y, rsf_probs, times)
+    rsf_probs = np.row_stack([fn(times) for fn in model.predict_survival_function(x_test)])
+    b_score = brier_score(y_train, y_test, rsf_probs, t)
 
     # AUC score
-    rsf_chf_funcs = rsf_model.predict_cumulative_hazard_function(features_validation, return_array=False)
+    rsf_chf_funcs = model.predict_cumulative_hazard_function(x_test, return_array=False)
     rsf_risk_scores = np.row_stack([chf(times) for chf in rsf_chf_funcs])
-    rsf_auc, rsf_mean_auc = cumulative_dynamic_auc(time_to_event_train, y, rsf_risk_scores, times)
+    rsf_auc, rsf_mean_auc = cumulative_dynamic_auc(y_train, y_test, rsf_risk_scores, t)
 
-    return c_index, brier_score, rsf_mean_auc, rsf_auc
+    return c_index, b_score[1], rsf_mean_auc, rsf_auc
+
+
+def plot_auc(t, auc_scores, auc_mean):
+    # Plot AUC
+    plt.plot(t, auc_scores, "o-", label=f"RSF (mean AUC = {auc_mean:.3f})")
+    plt.xlabel("Months since diagnosis")
+    plt.ylabel("time-dependent AUC")
+    plt.legend(loc="lower center")
+    plt.grid(True)
+    plt.show()
+
 
 # Read in data set
 data = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_5.csv')
@@ -37,51 +40,62 @@ data['os_event_censored_10yr'] = data['os_event_censored_10yr'].astype(bool)
 features = data.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
 time_to_event_data = data[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)
 
-
 c_indices = []
 brier_scores = []
 auc_means_scores = []
 auc_scores = []
+times = np.array([60, 119])
 fold_counter = 1
 
 # K-Fold setup
 kf = KFold(n_splits=5, shuffle=True, random_state=40)
+print(f"Fold\tC-Index\t\t\t\t\tBrier Score\t\t\t\tAUC")
 
+# Conduct K fold cross validation with optimal parameters
 for train_index, test_index in kf.split(features):
     features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
     time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
 
+    rsf_model_validate = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2,
+                                              n_estimators=400, random_state=40)
+
+    # Fit Model
+    rsf_model_validate.fit(features_train, time_to_event_train)
+
     # Train and Evaluate the model
-    ci, bs, auc_mean, auc = evaluate_model(features_validation, time_to_event_validation)
+    ci, bs, auc_mean, auc = evaluate_model(times, features_validation, time_to_event_validation, time_to_event_train,
+                                           rsf_model_validate)
     c_indices.append(ci)
     brier_scores.append(bs)
     auc_means_scores.append(auc_mean)
     auc_scores.append(auc)
 
-    print(f"Fold: {fold_counter}\t\tC-Index: {ci}\t\tBrier Score:{bs}\t\tAUC: {auc_mean}")
+    print(f"{fold_counter}\t\t{ci}\t\t{sum(bs) / len(bs)}\t\t{auc_mean}")
 
     fold_counter = fold_counter + 1
 
-
 average_c_index = sum(c_indices) / len(c_indices)
-average_brier_score = sum(brier_scores) / len(brier_scores)
+average_brier_scores = sum(brier_scores) / len(brier_scores)
+average_brier_mean_score = sum(average_brier_scores) / len(average_brier_scores)
 average_auc_means_score = sum(auc_means_scores) / len(auc_means_scores)
-average_auc_scores = sum(auc_scores)/len(auc_scores)
+average_auc_scores = sum(auc_scores) / len(auc_scores)
 
-df_current_feature_set = pd.DataFrame({
-        '5-Fold C-Index': [average_c_index],
-        '5-Fold B-Score': [average_brier_score],
-        '5-Fold AUC': [average_auc_means_score]
+df_validation_feature_set = pd.DataFrame({
+    'Method': ["Cross Validation"],
+    'C-Index': [average_c_index],
+    'Average B-Score': [average_brier_mean_score],
+    '5 year B-Score': [average_brier_scores[0]],
+    '10 year B-Score': [average_brier_scores[1]],
+    'Average AUC': [average_auc_means_score],
+    '5 year AUC': [average_auc_scores[0]],
+    '10 year AUC': [average_auc_scores[1]]
 })
 
-plt.plot(np.array([12, 60, 119]), average_auc_scores, "o-", label=f"RSF (mean AUC = {average_auc_means_score:.3f})")
-plt.xlabel("Months since diagnosis")
-plt.ylabel("time-dependent AUC")
-plt.legend(loc="lower center")
-plt.grid(True)
-plt.show()
+print("\n\n\tTable for cross validated metrics\n", df_validation_feature_set)
 
+plot_auc(times, average_auc_scores, average_auc_means_score)
 
+# *** Test final model against unseen data ***
 # Load in test data
 test_data = pd.read_csv('../../Files/10yr/Test_Preprocessed_Data.csv')
 test_data = pd.get_dummies(test_data, drop_first=True)
@@ -96,35 +110,50 @@ test_features = best_features_test_data.drop(['os_event_censored_10yr', 'os_mont
 test_time_to_event_data = best_features_test_data[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(
     index=False)
 
-# # Run test data through the model
-# result = rsf.score(test_features, test_time_to_event_data)
-# print(f"Test data Concordance Index: {result}")
-#
-# # Assuming rsf is your trained RandomSurvivalForest model and test_features, test_time_to_event_data are your test data
-# result = permutation_importance(rsf, test_features, test_time_to_event_data, n_repeats=30, random_state=42)
-#
-# # Organize and print feature importance's
-# importance_df = pd.DataFrame({
-#     'Feature': test_features.columns,
-#     'Importance': result.importances_mean
-# }).sort_values(by='Importance', ascending=False)
-#
-# print(importance_df)
+# Initiate model with optimal parameters
+rsf_model_test = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2,
+                                      n_estimators=400, random_state=40)
 
-# # Display probabilities for first 5 and last 5 entries in test data (sorted by age)
-# X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
-# X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
+rsf_model_test.fit(features, time_to_event_data)
 
-# survival = rsf.predict_survival_function(X_test_sel, return_array=True)
-#
-# for i, s in enumerate(survival):
-#     plt.step(rsf.unique_times_, s, where="post", label=str(i))
-# plt.ylabel("Survival probability")
-# plt.xlabel("Time in months")
-# plt.grid(True)
-# plt.title("Feature Set 5 Patient Survival Probabilities")
-# plt.show()
-# print(pd.Series(rsf.predict(X_test_sel)))
+# Evaluate model against test data
+ci_test, bs_test, auc_mean_test, auc_test = evaluate_model(times, test_features, test_time_to_event_data,
+                                                           time_to_event_data, rsf_model_test)
+
+df_test_feature_set = pd.DataFrame({
+    'Method': ["Unseen Data"],
+    'C-Index': [ci_test],
+    'Average B-Score': [sum(bs_test) / len(bs_test)],
+    '5 year B-Score': [bs_test[0]],
+    '10 year B-Score': [bs_test[1]],
+    'Average AUC': [auc_mean_test],
+    '5 year AUC': [auc_test[0]],
+    '10 year AUC': [auc_test[1]]
+})
+metrics_tables = pd.concat([df_validation_feature_set, df_test_feature_set], ignore_index=True)
+
+print("\n\n\tTable displaying metrics for crossvalidation and unseen data\n", metrics_tables)
+
+plot_auc(times, auc_test, auc_mean_test)
+
+metrics_tables.to_csv("../../Files/tables and graphs/10yr_rsf_metrics.csv", index=False)
+
+
+# Further Analysis
+# Display probabilities for first 5 and last 5 entries in test data (sorted by age)
+X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
+X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
+
+survival = rsf_model_test.predict_survival_function(X_test_sel, return_array=True)
+
+for i, s in enumerate(survival):
+    plt.step(rsf_model_test.unique_times_, s, where="post", label=str(i))
+plt.ylabel("Survival probability")
+plt.xlabel("Time in months")
+plt.grid(True)
+plt.title("Feature Set 5 Patient Survival Probabilities")
+plt.show()
+print(pd.Series(rsf_model_test.predict(X_test_sel)))
 
 # Get the survival probability for an individual patient at 5 years
 # individual_test = X_test_sorted.head(1)
@@ -139,6 +168,4 @@ test_time_to_event_data = best_features_test_data[['os_event_censored_10yr', 'os
 # time_index2 = np.where(time_points == 120)[0][0]
 # ten_year_survival_probability = probabilities[time_index2]
 # print(f"10-year survival probability: {ten_year_survival_probability}")
-#
-# # Run test data through the model
-# result = rsf.score(test_features, test_time_to_event_data)
+
