@@ -7,17 +7,16 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Load your machine learning model
+# Load machine learning model
 rsf = load('Models/rsf_model.joblib')
 
-# Define the feature names expected by your model
+# Define the feature names expected by model
 feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'mmr_status', 'cimp_status', 'cin_status', 'CMS',
                  'rfs_event_censored_10yr', 'sex_Male', 'tumour_location_proximal', 'chemotherapy_adjuvant_Y',
                  'kras_mutation_WT', 'braf_mutation_WT']
 
 @app.route('/')
 def login():
-    # Render the login or main page
     return render_template('index.html')
 
 @app.route('/login')

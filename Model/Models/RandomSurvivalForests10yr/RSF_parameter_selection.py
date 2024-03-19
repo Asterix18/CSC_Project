@@ -1,6 +1,8 @@
+import numpy as np
 import pandas as pd
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.model_selection import GridSearchCV
+from sksurv.metrics import cumulative_dynamic_auc
 
 feature_dataframe = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_8.csv')
 feature_dataframe['os_event_censored_10yr'] = feature_dataframe['os_event_censored_10yr'].astype(bool)
@@ -8,19 +10,31 @@ features = feature_dataframe.drop(['os_event_censored_10yr', 'os_months_censored
 time_to_event_data = feature_dataframe[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)
 
 
+def score_model(model, X, y):
+    prediction = model.predict(X)
+    result = model.score(X, y)
+
+    _, rsf_mean_auc = cumulative_dynamic_auc(y, y, prediction, np.array([119]))
+
+    score = rsf_mean_auc + result
+
+    return score
+
 param_grid = {
-    'n_estimators': [100, 200, 400, 600],
-    'max_depth': [3, 5, 10, 20, None],
-    'min_samples_split': [2, 5, 10, 15],
-    'min_samples_leaf': [1, 2, 4, 8],
-    'max_features': ['sqrt', 'log2', None]
+    'n_estimators': [100, 200, 300, 400],
+    'max_depth': [3, 5, 10, 15, None],
+    'min_samples_split': [2, 4, 6, 8],
+    'min_samples_leaf': [1, 2, 3, 4],
+    'max_features': ['sqrt', 'log2', None],
+    'bootstrap': [True, False]
+
 }
 
 # Create RSF model instance
 rsf = RandomSurvivalForest(random_state=40)
 
 # Create GridSearchCV instance
-grid_search = GridSearchCV(estimator=rsf, param_grid=param_grid, cv=5, n_jobs=-1)
+grid_search = GridSearchCV(estimator=rsf, param_grid=param_grid, cv=5, n_jobs=-1, scoring=score_model)
 
 # Fit the grid search to the data
 grid_search.fit(features, time_to_event_data)

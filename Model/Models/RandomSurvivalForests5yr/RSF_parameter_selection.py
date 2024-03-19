@@ -8,17 +8,18 @@ features = feature_dataframe.drop(['os_event_censored_5yr', 'os_months_censored_
 time_to_event_data = feature_dataframe[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(index=False)
 
 param_grid = {
-    'n_estimators': [100, 200, 400, 600],
-    'max_depth': [3, 5, 10, 20, None],
-    'min_samples_split': [2, 5, 10, 15],
-    'min_samples_leaf': [1, 2, 4, 8],
-    'max_features': ['sqrt', 'log2', None]
+    'n_estimators': [100, 200, 300, 400],
+    'max_depth': [3, 5, 10, 15, None],
+    'min_samples_split': [2, 4, 6, 8],
+    'min_samples_leaf': [1, 2, 3, 4],
+    'max_features': ['sqrt', 'log2', None],
+    'bootstrap': [True, False]
 }
 
 # Create RSF model instance
 rsf = RandomSurvivalForest(random_state=40)
 
-# Create GridSearchCV instance
+# Create GridSearchCV instance (Concordance index is the default scoring method)
 grid_search = GridSearchCV(estimator=rsf, param_grid=param_grid, cv=5, n_jobs=-1)
 
 # Fit the grid search to the data
@@ -26,4 +27,3 @@ grid_search.fit(features, time_to_event_data)
 
 # Print the best parameters
 print(f"Best Parameters: {grid_search.best_params_}")
-
