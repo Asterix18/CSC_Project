@@ -4,13 +4,12 @@ from sksurv.ensemble import RandomSurvivalForest
 from sklearn.inspection import permutation_importance
 from sksurv.linear_model import CoxPHSurvivalAnalysis
 import matplotlib.pyplot as plt
-from sksurv.metrics import integrated_brier_score, cumulative_dynamic_auc, brier_score
-from sklearn.model_selection import KFold
+from sksurv.metrics import cumulative_dynamic_auc, brier_score
+from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import make_pipeline
 
 
 def evaluate_model(t, x_test, y_test, y_train, model):
-    # Evaluate the model
     # Concordance Index
     c_index = model.score(x_test, y_test)
 
@@ -25,9 +24,9 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     return c_index, b_score[1], cph_mean_auc, cph_auc
 
 
-def plot_auc(t, auc_scores, auc_mean):
+def plot_auc(t, a_scores, a_mean):
     # Plot AUC
-    plt.plot(t, auc_scores, "o-", label=f"RSF (mean AUC = {auc_mean:.3f})")
+    plt.plot(t, a_scores, "o-", label=f"RSF (mean AUC = {a_mean:.3f})")
     plt.xlabel("Months since diagnosis")
     plt.ylabel("time-dependent AUC")
     plt.legend(loc="lower center")
@@ -49,11 +48,11 @@ times = np.array([60, 119])
 fold_counter = 1
 
 # K-Fold setup
-kf = KFold(n_splits=5, shuffle=True, random_state=40)
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=40)
 print(f"Fold\tC-Index\t\t\t\t\tBrier Score\t\t\t\tAUC")
 
 # Conduct K fold cross validation with optimal parameters
-for train_index, test_index in kf.split(features):
+for train_index, test_index in skf.split(features, time_to_event_data['os_event_censored_10yr']):
     features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
     time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
 
@@ -76,10 +75,10 @@ for train_index, test_index in kf.split(features):
 
     fold_counter = fold_counter + 1
 
-average_c_index = sum(c_indices) / len(c_indices)
+average_c_index = np.mean(c_indices)
 average_brier_scores = sum(brier_scores) / len(brier_scores)
-average_brier_mean_score = sum(average_brier_scores) / len(average_brier_scores)
-average_auc_means_score = sum(auc_means_scores) / len(auc_means_scores)
+average_brier_mean_score = np.mean(average_brier_scores)
+average_auc_means_score = np.mean(auc_means_scores)
 average_auc_scores = sum(auc_scores) / len(auc_scores)
 
 df_validation_feature_set = pd.DataFrame({
@@ -144,31 +143,15 @@ metrics_tables.to_csv("../../Files/tables and graphs/10yr_rsf_metrics.csv", inde
 X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
 X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
 
-survival = cph.predict_survival_function(X_test_sel, return_array=True)
-time_points = survival.time_points
-
-for i, s in enumerate(survival):
-    plt.step(time_points, s, where="post", label=str(i))
-plt.ylabel("Survival probability")
-plt.xlabel("Time in months")
-plt.grid(True)
-plt.title("Feature Set 5 Patient Survival Probabilities")
-plt.show()
-
-# print(pd.Series(rsf_model_test.predict(X_test_sel)))
-
-# Get the survival probability for an individual patient at 5 years
-# individual_test = X_test_sorted.head(1)
-# survival_probabilities = rsf.predict_survival_function(individual_test)
-# time_points = survival_probabilities[0].x
-# probabilities = survival_probabilities[0].y
-# time_index = np.where(time_points == 60)[0][0]
-# five_year_survival_probability = probabilities[time_index]
-# print(f"5-year survival probability: {five_year_survival_probability}")
-
-# # Get the survival probability for an individual patient at 10 years
-# time_index2 = np.where(time_points == 120)[0][0]
-# ten_year_survival_probability = probabilities[time_index2]
-# print(f"10-year survival probability: {ten_year_survival_probability}")
-
-print("\n\n\n*** Analysis Finished ***")
+# survival = cph.predict_survival_function(X_test_sel, return_array=True)
+# time_points = survival.time_points
+#
+# for i, s in enumerate(survival):
+#     plt.step(time_points, s, where="post", label=str(i))
+# plt.ylabel("Survival probability")
+# plt.xlabel("Time in months")
+# plt.grid(True)
+# plt.title("Feature Set 5 Patient Survival Probabilities")
+# plt.show()
+#
+# print("\n\n\n*** Analysis Finished ***")

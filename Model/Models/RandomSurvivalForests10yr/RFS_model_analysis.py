@@ -3,8 +3,8 @@ import numpy as np
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
-from sksurv.metrics import integrated_brier_score, cumulative_dynamic_auc, brier_score
-from sklearn.model_selection import KFold
+from sksurv.metrics import cumulative_dynamic_auc, brier_score
+from sklearn.model_selection import StratifiedKFold
 
 
 def evaluate_model(t, x_test, y_test, y_train, model):
@@ -17,8 +17,7 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     b_score = brier_score(y_train, y_test, rsf_probs, t)
 
     # AUC score
-    rsf_chf_funcs = model.predict_cumulative_hazard_function(x_test, return_array=False)
-    rsf_risk_scores = np.row_stack([chf(times) for chf in rsf_chf_funcs])
+    rsf_risk_scores = model.predict(x_test)
     rsf_auc, rsf_mean_auc = cumulative_dynamic_auc(y_train, y_test, rsf_risk_scores, t)
 
     return c_index, b_score[1], rsf_mean_auc, rsf_auc
@@ -35,7 +34,7 @@ def plot_auc(t, auc_scores, auc_mean):
 
 
 # Read in data set
-data = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_5.csv')
+data = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_8.csv')
 data['os_event_censored_10yr'] = data['os_event_censored_10yr'].astype(bool)
 features = data.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
 time_to_event_data = data[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)
@@ -44,15 +43,15 @@ c_indices = []
 brier_scores = []
 auc_means_scores = []
 auc_scores = []
-times = np.array([60, 119])
+times = np.array([119])
 fold_counter = 1
 
 # K-Fold setup
-kf = KFold(n_splits=5, shuffle=True, random_state=40)
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=40)
 print(f"Fold\tC-Index\t\t\t\t\tBrier Score\t\t\t\tAUC")
 
 # Conduct K fold cross validation with optimal parameters
-for train_index, test_index in kf.split(features):
+for train_index, test_index in skf.split(features, time_to_event_data['os_event_censored_10yr']):
     features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
     time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
 
@@ -70,30 +69,21 @@ for train_index, test_index in kf.split(features):
     auc_means_scores.append(auc_mean)
     auc_scores.append(auc)
 
-    print(f"{fold_counter}\t\t{ci}\t\t{sum(bs) / len(bs)}\t\t{auc_mean}")
+    print(f"{fold_counter}\t\t{ci}\t\t{bs[0]}\t\t{auc_mean}")
 
     fold_counter = fold_counter + 1
 
-average_c_index = sum(c_indices) / len(c_indices)
-average_brier_scores = sum(brier_scores) / len(brier_scores)
-average_brier_mean_score = sum(average_brier_scores) / len(average_brier_scores)
-average_auc_means_score = sum(auc_means_scores) / len(auc_means_scores)
+average_c_index = np.mean(c_indices)
+average_brier_mean_score = np.mean(brier_scores)
+average_auc_means_score = np.mean(auc_means_scores)
 average_auc_scores = sum(auc_scores) / len(auc_scores)
 
 df_validation_feature_set = pd.DataFrame({
     'Method': ["Cross Validation"],
     'C-Index': [average_c_index],
     'Average B-Score': [average_brier_mean_score],
-    '5 year B-Score': [average_brier_scores[0]],
-    '10 year B-Score': [average_brier_scores[1]],
-    'Average AUC': [average_auc_means_score],
-    '5 year AUC': [average_auc_scores[0]],
-    '10 year AUC': [average_auc_scores[1]]
+    'Average AUC': [average_auc_means_score]
 })
-
-print("\n\n\tTable for cross validated metrics\n", df_validation_feature_set)
-
-plot_auc(times, average_auc_scores, average_auc_means_score)
 
 # *** Test final model against unseen data ***
 # Load in test data
@@ -123,16 +113,13 @@ ci_test, bs_test, auc_mean_test, auc_test = evaluate_model(times, test_features,
 df_test_feature_set = pd.DataFrame({
     'Method': ["Unseen Data"],
     'C-Index': [ci_test],
-    'Average B-Score': [sum(bs_test) / len(bs_test)],
-    '5 year B-Score': [bs_test[0]],
-    '10 year B-Score': [bs_test[1]],
-    'Average AUC': [auc_mean_test],
-    '5 year AUC': [auc_test[0]],
-    '10 year AUC': [auc_test[1]]
+    'Average B-Score': [np.mean(bs_test)],
+    'Average AUC': [auc_mean_test]
 })
+
 metrics_tables = pd.concat([df_validation_feature_set, df_test_feature_set], ignore_index=True)
 
-print("\n\n\tTable displaying metrics for crossvalidation and unseen data\n", metrics_tables)
+print("\n\nTable displaying metrics for cross validation and unseen data\n", metrics_tables)
 
 plot_auc(times, auc_test, auc_mean_test)
 
@@ -145,8 +132,6 @@ X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
 X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
 
 survival = rsf_model_test.predict_survival_function(X_test_sel, return_array=True)
-
-print(rsf_model_test.unique_times_)
 
 for i, s in enumerate(survival):
     plt.step(rsf_model_test.unique_times_, s, where="post", label=str(i))

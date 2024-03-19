@@ -3,11 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sksurv.ensemble import RandomSurvivalForest
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 from sklearn.inspection import permutation_importance
-from sklearn.preprocessing import StandardScaler
-from sksurv.metrics import brier_score
-from sksurv.metrics import cumulative_dynamic_auc
+from sksurv.metrics import cumulative_dynamic_auc, brier_score
 
 # Setup file paths
 features_file_paths = (['../../Files/10yr/RSFFeatureSets/Best_Features_1.csv',
@@ -16,6 +14,8 @@ features_file_paths = (['../../Files/10yr/RSFFeatureSets/Best_Features_1.csv',
                         '../../Files/10yr/RSFFeatureSets/Best_Features_4.csv',
                         '../../Files/10yr/RSFFeatureSets/Best_Features_5.csv',
                         '../../Files/10yr/RSFFeatureSets/Best_Features_6.csv',
+                        '../../Files/10yr/RSFFeatureSets/Best_Features_7.csv',
+                        '../../Files/10yr/RSFFeatureSets/Best_Features_8.csv',
                         ])
 
 # Load in data sets
@@ -57,11 +57,11 @@ def get_importances(model, x_test, y_test):
 
 
 # K-Fold setup
-kf = KFold(n_splits=5, shuffle=True, random_state=40)
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=40)
 
 # Initialise variables
 feature_set_counter = 1
-times = np.array([60, 119])
+times = np.array([119])
 
 # Initialise arrays
 average_c_indices = []
@@ -87,7 +87,7 @@ for feature_sets in feature_dataframes:
     print(f"Fold\tC-Index\t\t\t\t\tBrier Score\t\t\t\tAUC")
 
     # Conduct K fold cross validation
-    for train_index, test_index in kf.split(features):
+    for train_index, test_index in skf.split(features, time_to_event_data['os_event_censored_10yr']):
         features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
         time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
 
@@ -102,7 +102,7 @@ for feature_sets in feature_dataframes:
         ci, bs, auc_mean, auc = evaluate_model(times, features_validation, time_to_event_validation, time_to_event_train
                                                , rsf_validation)
         # Print fold metrics
-        print(f"{fold_counter}\t\t{ci}\t\t{sum(bs) / len(bs)}\t\t{auc_mean}")
+        print(f"{fold_counter}\t\t{ci}\t\t{bs[0]}\t\t{auc_mean}")
 
         c_indices.append(ci)
         brier_scores.append(bs)
@@ -130,12 +130,12 @@ for feature_sets in feature_dataframes:
     feature_set_metrics.append(df_current_feature_set)
 
     # Calculate average importances for feature set
-    avg_importances = sum(importances) / len(importances)
-    importance_df = pd.DataFrame({
-        'Feature': features.columns,
-        'Importance': avg_importances
-    }).sort_values(by='Importance', ascending=False)
-    print("\n", importance_df)
+    # avg_importances = sum(importances) / len(importances)
+    # importance_df = pd.DataFrame({
+    #     'Feature': features.columns,
+    #     'Importance': avg_importances
+    # }).sort_values(by='Importance', ascending=False)
+    # print("\n", importance_df)
 
     # Plot AUC
     plot_auc(times, average_auc_scores, average_auc_means_score)

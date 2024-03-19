@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 prioritize_bestP = False
 
 data = pd.read_csv('../../Files/10yr/Train_Preprocessed_Data.csv')
-data = data.drop(['rfs_months_censored_10yr', 'tnm.m', 'cin_status'], axis=1)
+data = data.drop(['rfs_months_censored_10yr', 'tnm.m', 'tnm.n', 'tnm.t'], axis=1)
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 
-significant_level = 0.05
+significant_level = 0.1
 all_features = set(data.columns) - {'os_months_censored_10yr', 'os_event_censored_10yr'}
 
 best_features_set = {''}
@@ -48,7 +48,8 @@ cph.fit(best_features_data, duration_col='os_months_censored_10yr', event_col='o
 
 # Display the summary of the Cox model
 print(cph.summary)
-#Check the proportional hazards assumption for all variables
+
+# Check the proportional hazards assumption for all variables
 cph.check_assumptions(best_features_data, p_value_threshold=0.05)
 
 # Calculate the correlation matrix

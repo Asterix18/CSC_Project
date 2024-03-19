@@ -2,13 +2,13 @@ import pandas as pd
 import numpy as np
 import warnings
 import matplotlib.pyplot as plt
-from sklearn.model_selection import ShuffleSplit, GridSearchCV, KFold
+from sklearn.model_selection import ShuffleSplit, GridSearchCV, StratifiedKFold
 from sksurv.svm import FastSurvivalSVM
 from sklearn.preprocessing import StandardScaler
 
 scaler = StandardScaler()
 
-calc_alpha = True
+calc_alpha = False
 
 
 def find_best_alpha(data_set):
@@ -25,14 +25,14 @@ def find_best_alpha(data_set):
 
 
 # Function to cross validate SVM model
-def cross_val_SVM(a, data_set):
+def cross_val_svm(a, data_set):
     x, y = split_data(data_set)
     c_indices = []
     fold_counter = 1
     # Set up k fold cross validation
-    kf = KFold(n_splits=5, shuffle=True, random_state=40)
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=40)
     print(f"Fold\t\tC-Index")
-    for train_index, test_index in kf.split(x):
+    for train_index, test_index in skf.split(x, y['os_event_censored_10yr']):
         x_train, x_test = x.iloc[train_index], x.iloc[test_index]
         y_train, y_test = y[train_index], y[test_index]
         svm_model = FastSurvivalSVM(alpha=a, max_iter=1000, tol=None, random_state=40)
@@ -84,7 +84,7 @@ feature_set_metrics = []
 # Calculate the concordance index for each set of features with optimal alphas applied
 for feature_sets, alpha in zip(feature_dataframes, alphas):
     print(f"\n\nFeature set {feature_set_counter}:")
-    ci= cross_val_SVM(alpha, feature_sets)
+    ci= cross_val_svm(alpha, feature_sets)
     print(f"Average C-Index: {np.mean(ci)}")
     feature_set_counter += 1
 
