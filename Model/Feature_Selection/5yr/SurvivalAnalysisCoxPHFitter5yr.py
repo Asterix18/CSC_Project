@@ -13,8 +13,7 @@ data = data_initial.drop(['tnm.m', 'cin_status', 'rfs_months_censored'], axis=1)
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 
 significant_level = 0.05
-all_features = set(data.columns) - {'os_months_censored_5yr',
-                                    'os_event_censored_5yr'}  # replace with your time and event column names
+all_features = set(data.columns) - {'os_months_censored_5yr', 'os_event_censored_5yr'}
 
 best_features_set = {''}
 best_p_value = float('inf')

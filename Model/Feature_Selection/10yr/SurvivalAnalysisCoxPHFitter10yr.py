@@ -6,12 +6,11 @@ import matplotlib.pyplot as plt
 prioritize_bestP = False
 
 data = pd.read_csv('../../Files/10yr/Train_Preprocessed_Data.csv')
-data = data.drop(['rfs_months_censored_10yr','tnm.m', 'cin_status', 'tnm.n', 'tnm.t'], axis=1)
+data = data.drop(['rfs_months_censored_10yr', 'tnm.m', 'cin_status'], axis=1)
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 
-significant_level = 0.1
-all_features = set(data.columns) - {'os_months_censored_10yr',
-                                    'os_event_censored_10yr'}  # replace with your time and event column names
+significant_level = 0.05
+all_features = set(data.columns) - {'os_months_censored_10yr', 'os_event_censored_10yr'}
 
 best_features_set = {''}
 best_p_value = float('inf')

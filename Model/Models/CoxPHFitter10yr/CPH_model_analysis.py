@@ -2,9 +2,11 @@ import pandas as pd
 import numpy as np
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.inspection import permutation_importance
+from sksurv.linear_model import CoxPHSurvivalAnalysis
 import matplotlib.pyplot as plt
 from sksurv.metrics import integrated_brier_score, cumulative_dynamic_auc, brier_score
 from sklearn.model_selection import KFold
+from sklearn.pipeline import make_pipeline
 
 
 def evaluate_model(t, x_test, y_test, y_train, model):
@@ -13,15 +15,14 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     c_index = model.score(x_test, y_test)
 
     # Brier Score
-    rsf_probs = np.row_stack([fn(times) for fn in model.predict_survival_function(x_test)])
-    b_score = brier_score(y_train, y_test, rsf_probs, t)
+    cph_probs = np.row_stack([fn(times) for fn in model.predict_survival_function(x_test)])
+    b_score = brier_score(y_train, y_test, cph_probs, t)
 
     # AUC score
-    rsf_chf_funcs = model.predict_cumulative_hazard_function(x_test, return_array=False)
-    rsf_risk_scores = np.row_stack([chf(times) for chf in rsf_chf_funcs])
-    rsf_auc, rsf_mean_auc = cumulative_dynamic_auc(y_train, y_test, rsf_risk_scores, t)
+    risk_scores = model.predict(x_test)
+    cph_auc, cph_mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, t)
 
-    return c_index, b_score[1], rsf_mean_auc, rsf_auc
+    return c_index, b_score[1], cph_mean_auc, cph_auc
 
 
 def plot_auc(t, auc_scores, auc_mean):
@@ -59,12 +60,13 @@ for train_index, test_index in kf.split(features):
     rsf_model_validate = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2,
                                               n_estimators=400, random_state=40)
 
-    # Fit Model
-    rsf_model_validate.fit(features_train, time_to_event_train)
+    # Create and fit the Cox Proportional Hazards model
+    cph = make_pipeline(CoxPHSurvivalAnalysis())
+    cph.fit(features_train, time_to_event_train)
 
     # Train and Evaluate the model
     ci, bs, auc_mean, auc = evaluate_model(times, features_validation, time_to_event_validation, time_to_event_train,
-                                           rsf_model_validate)
+                                           cph)
     c_indices.append(ci)
     brier_scores.append(bs)
     auc_means_scores.append(auc_mean)
@@ -111,14 +113,12 @@ test_time_to_event_data = best_features_test_data[['os_event_censored_10yr', 'os
     index=False)
 
 # Initiate model with optimal parameters
-rsf_model_test = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2,
-                                      n_estimators=400, random_state=40)
-
-rsf_model_test.fit(features, time_to_event_data)
+cph = make_pipeline(CoxPHSurvivalAnalysis())
+cph.fit(features, time_to_event_data)
 
 # Evaluate model against test data
 ci_test, bs_test, auc_mean_test, auc_test = evaluate_model(times, test_features, test_time_to_event_data,
-                                                           time_to_event_data, rsf_model_test)
+                                                           time_to_event_data, cph)
 
 df_test_feature_set = pd.DataFrame({
     'Method': ["Unseen Data"],
@@ -144,12 +144,11 @@ metrics_tables.to_csv("../../Files/tables and graphs/10yr_rsf_metrics.csv", inde
 X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
 X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
 
-survival = rsf_model_test.predict_survival_function(X_test_sel, return_array=True)
-
-print(rsf_model_test.unique_times_)
+survival = cph.predict_survival_function(X_test_sel, return_array=True)
+time_points = survival.time_points
 
 for i, s in enumerate(survival):
-    plt.step(rsf_model_test.unique_times_, s, where="post", label=str(i))
+    plt.step(time_points, s, where="post", label=str(i))
 plt.ylabel("Survival probability")
 plt.xlabel("Time in months")
 plt.grid(True)

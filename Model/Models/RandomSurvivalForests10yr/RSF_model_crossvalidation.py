@@ -31,12 +31,11 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     c_index = model.score(x_test, y_test)
 
     # Brier Score
-    rsf_probs = np.row_stack([fn(times) for fn in model.predict_survival_function(x_test)])
+    rsf_probs = np.row_stack([fn(t) for fn in model.predict_survival_function(x_test)])
     b_score = brier_score(y_train, y_test, rsf_probs, t)
 
     # AUC score
-    rsf_chf_funcs = model.predict_cumulative_hazard_function(x_test, return_array=False)
-    rsf_risk_scores = np.row_stack([chf(times) for chf in rsf_chf_funcs])
+    rsf_risk_scores = model.predict(x_test)
     rsf_auc, rsf_mean_auc = cumulative_dynamic_auc(y_train, y_test, rsf_risk_scores, t)
 
     return c_index, b_score[1], rsf_mean_auc, rsf_auc
@@ -116,10 +115,10 @@ for feature_sets in feature_dataframes:
         fold_counter = fold_counter + 1
 
     # Calculate average metrics for feature set
-    average_c_index = sum(c_indices) / len(c_indices)
-    average_brier_scores = sum(brier_scores) / len(brier_scores)
-    average_brier_mean_score = sum(average_brier_scores) / len(average_brier_scores)
-    average_auc_means_score = sum(auc_means_scores) / len(auc_means_scores)
+    average_c_index = np.mean(c_indices)
+    average_brier_scores = np.mean(brier_scores, axis=1)
+    average_brier_mean_score = np.mean(average_brier_scores)
+    average_auc_means_score = np.mean(auc_means_scores)
     average_auc_scores = sum(auc_scores) / len(auc_scores)
 
     df_current_feature_set = pd.DataFrame({
@@ -149,3 +148,4 @@ df_summary = pd.concat(feature_set_metrics, ignore_index=True)
 # Display the final table
 print("\n\n", df_summary)
 
+print("\n\n\n*** Analysis Finished ***")

@@ -1,7 +1,18 @@
+import numpy as np
 import pandas as pd
 from sksurv.svm import FastSurvivalSVM
 from sksurv.metrics import concordance_index_censored
+from sksurv.metrics import integrated_brier_score
 
+
+def integrated_brier_score_survival_model(model, X, y, times):
+    event_observed = y['os_event_censored_10yr']
+    event_times = y['os_months_censored_10yr']
+    predictions = model(X)
+
+    score = integrated_brier_score(event_times, event_observed, predictions, times)
+
+    return score
 def score_survival_model(model, X, y):
     prediction = model.predict(X)
     result = concordance_index_censored(y["os_event_censored_10yr"], y["os_months_censored_10yr"], prediction)
@@ -27,8 +38,11 @@ test_features = best_features_test_data.drop(['os_event_censored_10yr', 'os_mont
 test_time_to_event_data = best_features_test_data[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(
     index=False)
 
-estimator = FastSurvivalSVM(alpha=0.015625, max_iter=1000, tol=None, random_state=40)
+estimator = FastSurvivalSVM(alpha=0.0009765625, max_iter=1000, tol=None, random_state=40)
 estimator.fit(features, time_to_event_data)
 print(score_survival_model(estimator, test_features, test_time_to_event_data))
+print(estimator.score(test_features, test_time_to_event_data))
+times = np.array([12,60,119])
+print(integrated_brier_score_survival_model(estimator, test_features, test_time_to_event_data, times))
 
 
