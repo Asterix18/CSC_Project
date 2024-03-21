@@ -34,8 +34,8 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     c_index = model.score(x_test, y_test)
 
     # Brier Score
-    rsf_probs = np.row_stack([fn(t) for fn in model.predict_survival_function(x_test)])
-    b_score = brier_score(y_train, y_test, rsf_probs, t)
+    rsf_probabilities = np.row_stack([fn(t) for fn in model.predict_survival_function(x_test)])
+    b_score = brier_score(y_train, y_test, rsf_probabilities, t)
 
     # AUC score
     rsf_risk_scores = model.predict(x_test)

@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 from sksurv.ensemble import RandomSurvivalForest
+from sksurv.metrics import cumulative_dynamic_auc, brier_score
 from sklearn.model_selection import GridSearchCV
-from sksurv.metrics import cumulative_dynamic_auc, brier_score, integrated_brier_score
 
 feature_dataframe = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_8.csv')
 feature_dataframe['os_event_censored_10yr'] = feature_dataframe['os_event_censored_10yr'].astype(bool)
@@ -18,14 +18,15 @@ def score_model(model, X, y):
     c_index = model.score(X, y)
 
     # Brier Score
-    rsf_probs = np.row_stack([fn(t) for fn in model.predict_survival_function(X)])
-    b_score = brier_score(y, y, rsf_probs, t)
+    rsf_probabilities = np.row_stack([fn(t) for fn in model.predict_survival_function(X)])
+    b_score = brier_score(y, y, rsf_probabilities, t)
 
     _, rsf_mean_auc = cumulative_dynamic_auc(y, y, prediction, t)
 
-    score = (rsf_mean_auc/2) + c_index - (b_score[1][0]*2)
+    score = (rsf_mean_auc / 2) + c_index - (b_score[1][0] * 2)
 
     return score
+
 
 param_grid = {
     'n_estimators': [100, 300, 500],

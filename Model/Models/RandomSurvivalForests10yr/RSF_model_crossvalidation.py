@@ -25,14 +25,15 @@ for file_path in features_file_paths:
     feature_dataframe['os_event_censored_10yr'] = feature_dataframe['os_event_censored_10yr'].astype(bool)
     feature_dataframes.append(feature_dataframe)
 
+
 def evaluate_model(t, x_test, y_test, y_train, model):
     # Evaluate the model
     # Concordance Index
     c_index = model.score(x_test, y_test)
 
     # Brier Score
-    rsf_probs = np.row_stack([fn(t) for fn in model.predict_survival_function(x_test)])
-    b_score = brier_score(y_train, y_test, rsf_probs, t)
+    rsf_probabilities = np.row_stack([fn(t) for fn in model.predict_survival_function(x_test)])
+    b_score = brier_score(y_train, y_test, rsf_probabilities, t)
 
     # AUC score
     rsf_risk_scores = model.predict(x_test)
@@ -41,9 +42,9 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     return c_index, b_score[1], rsf_mean_auc, rsf_auc
 
 
-def plot_auc(t, auc_scores, auc_mean):
+def plot_auc(t, a_scores, a_mean):
     # Plot AUC
-    plt.plot(t, auc_scores, "o-", label=f"RSF (mean AUC = {auc_mean:.3f})")
+    plt.plot(t, a_scores, "o-", label=f"RSF (mean AUC = {a_mean:.3f})")
     plt.xlabel("Months since diagnosis")
     plt.ylabel("time-dependent AUC")
     plt.legend(loc="lower center")
@@ -99,8 +100,8 @@ for feature_sets in feature_dataframes:
         rsf_validation.fit(features_train, time_to_event_train)
 
         # Evaluate model
-        ci, bs, auc_mean, auc = evaluate_model(times, features_validation, time_to_event_validation, time_to_event_train
-                                               , rsf_validation)
+        ci, bs, auc_mean, auc = evaluate_model(times, features_validation, time_to_event_validation,
+                                               time_to_event_train, rsf_validation)
         # Print fold metrics
         print(f"{fold_counter}\t\t{ci}\t\t{bs[0]}\t\t{auc_mean}")
 

@@ -1,10 +1,11 @@
 import pandas as pd
 import numpy as np
-from sksurv.ensemble import RandomSurvivalForest
-from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
+from joblib import dump
 from sksurv.metrics import cumulative_dynamic_auc, brier_score
+from sksurv.ensemble import RandomSurvivalForest
 from sklearn.model_selection import StratifiedKFold
+from sklearn.inspection import permutation_importance
 
 
 def evaluate_model(t, x_test, y_test, y_train, model):
@@ -59,8 +60,8 @@ for train_index, test_index in skf.split(features, time_to_event_data['os_event_
     features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
     time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
 
-    rsf_model_validate = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2,
-                                              n_estimators=400, random_state=40)
+    rsf_model_validate = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=1, min_samples_split=2,
+                                              n_estimators=100, random_state=40)
 
     # Fit Model
     rsf_model_validate.fit(features_train, time_to_event_train)
@@ -108,8 +109,8 @@ test_time_to_event_data = best_features_test_data[['os_event_censored_5yr', 'os_
     index=False)
 
 # Initiate model with optimal parameters
-rsf_model_test = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2,
-                                      n_estimators=400, random_state=40)
+rsf_model_test = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=1, min_samples_split=2,
+                                      n_estimators=100, random_state=40)
 
 rsf_model_test.fit(features, time_to_event_data)
 
@@ -164,3 +165,5 @@ plt.show()
 # print(f"10-year survival probability: {ten_year_survival_probability}")
 
 print("\n\n\n*** Analysis Finished ***")
+
+dump(rsf_model_test, "../../../Website/Models/5yr_model.joblib", compress=3)

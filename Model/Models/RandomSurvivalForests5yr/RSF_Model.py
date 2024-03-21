@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 from sksurv.ensemble import RandomSurvivalForest
 from joblib import dump
-from sklearn.inspection import permutation_importance
-import matplotlib.pyplot as plt
+
 
 data = pd.read_csv('../../Files/5yr/RSFFeatureSets/Best_Features_6.csv')
 data['os_event_censored_5yr'] = data['os_event_censored_5yr'].astype(bool)

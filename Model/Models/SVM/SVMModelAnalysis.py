@@ -3,17 +3,6 @@ import pandas as pd
 import warnings
 from sksurv.svm import FastSurvivalSVM
 from sksurv.metrics import concordance_index_censored
-from sksurv.metrics import integrated_brier_score
-
-
-# def integrated_brier_score_survival_model(model, X, y, y_train, times):
-#     event_observed = y['os_event_censored_10yr']
-#     event_times = y['os_months_censored_10yr']
-#     predictions = model.predict(X)
-#
-#     score = integrated_brier_score(y_train, y, predictions, times)
-#
-#     return score
 
 
 def score_survival_model(model, X, y):
@@ -47,6 +36,5 @@ estimator = FastSurvivalSVM(alpha=0.0009765625, max_iter=1000, tol=None, random_
 warnings.filterwarnings("ignore", category=UserWarning)
 estimator.fit(features, time_to_event_data)
 print(f"Concordance index for unseen data: {estimator.score(test_features, test_time_to_event_data)}")
-times = np.array([60, 119])
-# print(integrated_brier_score_survival_model(estimator, test_features, test_time_to_event_data, time_to_event_data,
-#                                             times))
+
+

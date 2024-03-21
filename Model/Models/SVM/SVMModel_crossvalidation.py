@@ -4,9 +4,6 @@ import warnings
 import matplotlib.pyplot as plt
 from sklearn.model_selection import ShuffleSplit, GridSearchCV, StratifiedKFold
 from sksurv.svm import FastSurvivalSVM
-from sklearn.preprocessing import StandardScaler
-
-scaler = StandardScaler()
 
 calc_alpha = False
 
@@ -84,11 +81,9 @@ feature_set_metrics = []
 # Calculate the concordance index for each set of features with optimal alphas applied
 for feature_sets, alpha in zip(feature_dataframes, alphas):
     print(f"\n\nFeature set {feature_set_counter}:")
-    ci= cross_val_svm(alpha, feature_sets)
+    ci = cross_val_svm(alpha, feature_sets)
     print(f"Average C-Index: {np.mean(ci)}")
     feature_set_counter += 1
-
-
 
 # def plot_performance(gcv):
 #     n_splits = gcv.cv.n_splits

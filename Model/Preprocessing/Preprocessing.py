@@ -1,7 +1,7 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.model_selection import train_test_split
 
 # Read in patient dataframe
 data = pd.read_csv('../Files/gse39582_n469_clinical_data.csv')
@@ -13,7 +13,7 @@ print(data.isnull().sum())
 data = data.dropna(axis=1, thresh=len(data) - 100)
 
 # Drop the clinically insignificant columns
-data = data.drop(data[['PDS_call', 'cit_molecular_subtype']], axis = 1)
+data = data.drop(data[['PDS_call', 'cit_molecular_subtype']], axis=1)
 
 # tnm.t setup
 data['tnm.t'] = data['tnm.t'].replace('T1', 1)
@@ -61,7 +61,7 @@ correlation_matrix = data_correlation.corr()
 plt.figure(figsize=(10, 10))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
 plt.title("Correlation Matrix of all features")
-#plt.show()
+# plt.show()
 
 # Assign means/modes to missing values
 
@@ -71,17 +71,18 @@ mmr_status_for_cimp_1 = data[data['cimp_status'] == 1]['mmr_status'].mode()[0]
 data.loc[(data['cimp_status'] == 0) & (data['mmr_status'].isnull()), 'mmr_status'] = mmr_status_for_cimp_0
 data.loc[(data['cimp_status'] == 1) & (data['mmr_status'].isnull()), 'mmr_status'] = mmr_status_for_cimp_1
 
-#Fill in cimp_status missing values based off mmr_status
+# Fill in cimp_status missing values based off mmr_status
 cimp_status_for_mmr_0 = data[data['mmr_status'] == 0]['cimp_status'].mode()[0]
 cimp_status_for_mmr_1 = data[data['mmr_status'] == 1]['cimp_status'].mode()[0]
 data.loc[(data['mmr_status'] == 0) & (data['cimp_status'].isnull()), 'cimp_status'] = cimp_status_for_mmr_0
 data.loc[(data['mmr_status'] == 1) & (data['cimp_status'].isnull()), 'cimp_status'] = cimp_status_for_mmr_1
 
-#Fill in cin_status missing values based off mmr_status (correlation = -0.48)
+# Fill in cin_status missing values based off mmr_status (correlation = -0.48)
 cin_status_for_mmr_0 = data[data['mmr_status'] == 0]['cin_status'].mode()[0]
 cin_status_for_mmr_1 = data[data['mmr_status'] == 1]['cin_status'].mode()[0]
 data.loc[(data['mmr_status'] == 0) & (data['cin_status'].isnull()), 'cin_status'] = cin_status_for_mmr_0
 data.loc[(data['mmr_status'] == 1) & (data['cin_status'].isnull()), 'cin_status'] = cin_status_for_mmr_1
+
 
 # Function to fill in tnm.t, tnm.n and tnm.m based off the modes of the values using tnm_stage a target
 def tnm_fill_with_mode(df, tnm_stage, tnm_component):
@@ -89,6 +90,7 @@ def tnm_fill_with_mode(df, tnm_stage, tnm_component):
         mode = df.loc[df[tnm_stage] == stage, tnm_component].mode()[0]
         df.loc[(df[tnm_stage] == stage) & (df[tnm_component].isna()), tnm_component] = mode
     return df
+
 
 data = tnm_fill_with_mode(data, 'tnm_stage', 'tnm.t')
 data = tnm_fill_with_mode(data, 'tnm_stage', 'tnm.n')
@@ -113,11 +115,11 @@ data['os_event_censored_5yr'] = data.apply(lambda row: row['os_event'] if row['o
 data['os_months_censored_10yr'] = data['os_months'].clip(upper=120)
 data['os_event_censored_10yr'] = data.apply(lambda row: row['os_event'] if row['os_months'] <= 120 else 0, axis=1)
 
-# Censoring rfs at 5 years (60 months) for calculating the 5 year survival rates
+# Censoring rfs at 5 years (60 months) for calculating the 5-year survival rates
 data['rfs_months_censored_5yr'] = data['rfs_months'].clip(upper=60)
 data['rfs_event_censored_5yr'] = data.apply(lambda row: row['rfs_event'] if row['rfs_months'] <= 60 else 0, axis=1)
 
-# Censoring rfs at 10 years (120 months) for calculating the 10 year survival rates
+# Censoring rfs at 10 years (120 months) for calculating the 10-year survival rates
 data['rfs_months_censored_10yr'] = data['rfs_months'].clip(upper=120)
 data['rfs_event_censored_10yr'] = data.apply(lambda row: row['rfs_event'] if row['rfs_months'] <= 120 else 0, axis=1)
 
@@ -131,14 +133,18 @@ train_data_10yr, test_data_10yr = train_test_split(data, test_size=0.15, random_
     'os_event_censored_10yr'])
 
 train_data_5yr = train_data_5yr.drop(['os_months_censored_10yr', 'os_event_censored_10yr', 'rfs_months_censored_10yr',
-                     'rfs_event_censored_10yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'], axis=1)
+                                      'rfs_event_censored_10yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'],
+                                     axis=1)
 test_data_5yr = test_data_5yr.drop(['os_months_censored_10yr', 'os_event_censored_10yr', 'rfs_months_censored_10yr',
-                    'rfs_event_censored_10yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'], axis=1)
+                                    'rfs_event_censored_10yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'],
+                                   axis=1)
 
 train_data_10yr = train_data_10yr.drop(['os_months_censored_5yr', 'os_event_censored_5yr', 'rfs_months_censored_5yr',
-                      'rfs_event_censored_5yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'], axis=1)
+                                        'rfs_event_censored_5yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'],
+                                       axis=1)
 test_data_10yr = test_data_10yr.drop(['os_months_censored_5yr', 'os_event_censored_5yr', 'rfs_months_censored_5yr',
-                    'rfs_event_censored_5yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'], axis=1)
+                                      'rfs_event_censored_5yr', 'rfs_event', 'rfs_months', 'os_event', 'os_months'],
+                                     axis=1)
 
 # # # Save the train and test sets into separate CSV files
 train_data_5yr.to_csv('../Files/5yr/Train_Preprocessed_Data.csv', index=False)
@@ -159,9 +165,8 @@ plt.xlabel('Dataset')
 plt.ylabel('Count of death events')
 plt.show()
 
-train_percentage = (train_count_1s/len(train_data_5yr['os_event_censored_5yr']))*100
-test_percentage = (test_count_1s/len(test_data_5yr['os_event_censored_5yr']))*100
-
+train_percentage = (train_count_1s / len(train_data_5yr['os_event_censored_5yr'])) * 100
+test_percentage = (test_count_1s / len(test_data_5yr['os_event_censored_5yr'])) * 100
 
 print(f"Train Death Event Percentage: {train_percentage}%\nTest Death Event Percentage: {test_percentage}%\n")
 
@@ -178,10 +183,7 @@ plt.xlabel('Dataset')
 plt.ylabel('Count of death events')
 plt.show()
 
-train_percentage = (train_count_1s/len(train_data_10yr['os_event_censored_10yr']))*100
-test_percentage = (test_count_1s/len(test_data_10yr['os_event_censored_10yr']))*100
-
+train_percentage = (train_count_1s / len(train_data_10yr['os_event_censored_10yr'])) * 100
+test_percentage = (test_count_1s / len(test_data_10yr['os_event_censored_10yr'])) * 100
 
 print(f"Train Death Event Percentage: {train_percentage}%\nTest Death Event Percentage: {test_percentage}%\n")
-
-

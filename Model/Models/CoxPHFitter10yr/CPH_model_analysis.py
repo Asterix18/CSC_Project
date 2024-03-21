@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
-from sksurv.ensemble import RandomSurvivalForest
-from sklearn.inspection import permutation_importance
-from sksurv.linear_model import CoxPHSurvivalAnalysis
 import matplotlib.pyplot as plt
-from sksurv.metrics import cumulative_dynamic_auc, brier_score
+from sklearn.inspection import permutation_importance
 from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import make_pipeline
+from sksurv.linear_model import CoxPHSurvivalAnalysis
+from sksurv.ensemble import RandomSurvivalForest
+from sksurv.metrics import cumulative_dynamic_auc, brier_score
 
 
 def evaluate_model(t, x_test, y_test, y_train, model):
@@ -14,8 +14,8 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     c_index = model.score(x_test, y_test)
 
     # Brier Score
-    cph_probs = np.row_stack([fn(times) for fn in model.predict_survival_function(x_test)])
-    b_score = brier_score(y_train, y_test, cph_probs, t)
+    cph_probabilities = np.row_stack([fn(times) for fn in model.predict_survival_function(x_test)])
+    b_score = brier_score(y_train, y_test, cph_probabilities, t)
 
     # AUC score
     risk_scores = model.predict(x_test)
@@ -136,7 +136,6 @@ print("\n\n\tTable displaying metrics for crossvalidation and unseen data\n", me
 plot_auc(times, auc_test, auc_mean_test)
 
 metrics_tables.to_csv("../../Files/tables and graphs/10yr_rsf_metrics.csv", index=False)
-
 
 # Further Analysis
 # Display probabilities for first 5 and last 5 entries in test data (sorted by age)
