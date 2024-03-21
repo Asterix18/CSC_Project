@@ -166,4 +166,4 @@ plt.show()
 
 print("\n\n\n*** Analysis Finished ***")
 
-dump(rsf_model_test, "../../../Website/Models/10yr_model.joblib")
+dump(rsf_model_test, "../../../Website/Models/10yr_model.joblib", compress=3)
