@@ -23,7 +23,7 @@
     <div class="form-container">
         <form id="predictionForm" action="/predict" method="post">
             <h2 id="form-title">Predict Colorectal Cancer WebTool</h2>
-            <h3 id="form-instruction">Enter patient details to receive predictions </h3>
+            <h3 id="form-instruction">Enter patient details to receive predictions*</h3>
             <div class="form">
                 <label for="forename">Forename</label>
                 <input  type="text" id="forename" name="forename" placeholder="Enter forename" required>
@@ -61,15 +61,15 @@
                 </select><br>
             </div>
             <div class="form">
-                <label for="cin_status">CIN status</label>
-                <select name="cin_status" id="cin_status" required>
+                <label for="rfs_event_censored_5yr">Relapse Occurred Within 60 months</label>
+                <select name="rfs_event_censored_5yr" id="rfs_event_censored_5yr" required>
                     <option value="" selected disabled>select an option</option>
-                    <option value="0">-</option>
-                    <option value="1">+</option>
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
                 </select><br>
             </div>
             <div class="form">
-                <label for="rfs_event_censored_10yr">Relapse Occurred</label>
+                <label for="rfs_event_censored_10yr">Relapse Occurred after 60 months</label>
                 <select name="rfs_event_censored_10yr" id="rfs_event_censored_10yr" required>
                     <option value="" selected disabled>select an option</option>
                     <option value="0">No</option>
@@ -117,6 +117,14 @@
                 </select><br>
             </div>
             <div class="form">
+                <label for="tp53_mutation_WT">TP53 Mutation Type</label>
+                <select name="tp53_mutation_WT" id="tp53_mutation_WT" required>
+                    <option value="" selected disabled>select an option</option>
+                    <option value="True">Wild Type</option>
+                    <option value="False">Mutated</option>
+                </select><br>
+            </div>
+            <div class="form">
                 <label for="cms">CMS</label>
                 <select name="cms" id="cms" required>
                     <option value="" selected disabled>select an option</option>
@@ -130,6 +138,9 @@
             <div class="button-container">
                 <button type="reset" class="clear-form-btn">Clear Form</button>
                 <button type="submit" class="predict-survival-btn">Predict Survival</button>
+            </div>
+            <div id="note">
+                <label>*Information on the validity of predictions can be found in the about tab</label>
             </div>
         </form>
          <div id="loading" style="display:none;">
