@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.model_selection import GridSearchCV
-from sksurv.metrics import cumulative_dynamic_auc
+from sksurv.metrics import cumulative_dynamic_auc, brier_score, integrated_brier_score
 
 feature_dataframe = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_8.csv')
 feature_dataframe['os_event_censored_10yr'] = feature_dataframe['os_event_censored_10yr'].astype(bool)
@@ -11,23 +11,28 @@ time_to_event_data = feature_dataframe[['os_event_censored_10yr', 'os_months_cen
 
 
 def score_model(model, X, y):
+    t = np.array([119])
+
     prediction = model.predict(X)
-    result = model.score(X, y)
 
-    _, rsf_mean_auc = cumulative_dynamic_auc(y, y, prediction, np.array([119]))
+    c_index = model.score(X, y)
 
-    score = rsf_mean_auc + result
+    # Brier Score
+    rsf_probs = np.row_stack([fn(t) for fn in model.predict_survival_function(X)])
+    b_score = brier_score(y, y, rsf_probs, t)
+
+    _, rsf_mean_auc = cumulative_dynamic_auc(y, y, prediction, t)
+
+    score = (rsf_mean_auc/2) + c_index - (b_score[1][0]*2)
 
     return score
 
 param_grid = {
-    'n_estimators': [100, 200, 300, 400],
-    'max_depth': [3, 5, 10, 15, None],
-    'min_samples_split': [2, 4, 6, 8],
+    'n_estimators': [100, 300, 500],
+    'max_depth': [3, 9, 15, None],
+    'min_samples_split': [2, 6, 10, 14],
     'min_samples_leaf': [1, 2, 3, 4],
-    'max_features': ['sqrt', 'log2', None],
-    'bootstrap': [True, False]
-
+    'max_features': ['sqrt', 'log2', None]
 }
 
 # Create RSF model instance

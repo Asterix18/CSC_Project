@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from joblib import dump
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
@@ -55,8 +56,15 @@ for train_index, test_index in skf.split(features, time_to_event_data['os_event_
     features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
     time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
 
-    rsf_model_validate = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2,
-                                              n_estimators=400, random_state=40)
+    # rsf_model_validate = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2,
+    #                                           n_estimators=400, random_state=40)
+
+    # rsf_model_validate = RandomSurvivalForest(max_depth=15, max_features='sqrt', min_samples_leaf=1,
+    #                                           min_samples_split=2, n_estimators=500, random_state=40)
+
+    rsf_model_validate = RandomSurvivalForest(max_depth=15, max_features='sqrt', min_samples_leaf=1,
+                                              min_samples_split=6,
+                                              n_estimators=500, random_state=40)
 
     # Fit Model
     rsf_model_validate.fit(features_train, time_to_event_train)
@@ -101,8 +109,8 @@ test_time_to_event_data = best_features_test_data[['os_event_censored_10yr', 'os
     index=False)
 
 # Initiate model with optimal parameters
-rsf_model_test = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2,
-                                      n_estimators=400, random_state=40)
+rsf_model_test = RandomSurvivalForest(max_depth=15, max_features='sqrt', min_samples_leaf=1, min_samples_split=6,
+                                      n_estimators=500, random_state=40)
 
 rsf_model_test.fit(features, time_to_event_data)
 
@@ -124,7 +132,6 @@ print("\n\nTable displaying metrics for cross validation and unseen data\n", met
 plot_auc(times, auc_test, auc_mean_test)
 
 metrics_tables.to_csv("../../Files/tables and graphs/10yr_rsf_metrics.csv", index=False)
-
 
 # Further Analysis
 # Display probabilities for first 5 and last 5 entries in test data (sorted by age)
@@ -158,3 +165,5 @@ plt.show()
 # print(f"10-year survival probability: {ten_year_survival_probability}")
 
 print("\n\n\n*** Analysis Finished ***")
+
+dump(rsf_model_test, "../../../Website/Models/10yr_model.joblib")
