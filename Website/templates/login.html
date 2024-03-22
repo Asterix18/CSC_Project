@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,18 +13,25 @@
     </div>
 </header>
 <div id="login-box">
-    <div id="form-title"> <h1>PCRC Web tool Login</h1> </div>
-    <div class="login-row">
-        <label for="username">Username:</label>
-        <input  type="text" id="username" name="username" placeholder="Enter username" required>
-    </div>
-    <div class="login-row">
-        <label for="username">Password:</label>
-        <input  type="password" id="password" name="password" placeholder="Enter password" required>
-    </div>
-    <div class="button-container">
-        <button type="submit" class="clear-form-btn">Forgotten Password?</button>
-        <button type="submit" class="predict-survival-btn">Login</button>
-    </div>
+    <div id="form-title"><h1>PCRC Web tool Login</h1></div>
+    <form method="post">
+        <div class="login-row">
+            <label for="username">Username:</label>
+            <input id="username" type="text" name="username" placeholder="Enter username" value="{{
+          request.form.username }}" required>
+        </div>
+        <div class="login-row">
+            <label for="password">Password:</label>
+            <input id="password" type="password" name="password" placeholder="Enter password" value="{{
+          request.form.password }}" required>
+        </div>
+        <div class="login-button-container">
+            <button type="submit" class="btn-login">Login</button>
+        </div>
+        <div class="login-button-container">
+            <a href="/login">Forgotten Password?</a>
+        </div>
+    </form>
+
 </div>
 </body>

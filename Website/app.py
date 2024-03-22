@@ -1,11 +1,16 @@
-from flask import Flask, render_template, request, jsonify
-from joblib import load
 import pandas as pd
 import numpy as np
+from flask import Flask, flash, render_template, request, jsonify, redirect, url_for, session, make_response
+from joblib import load
+from functools import wraps
 from dateutil import relativedelta
 from datetime import datetime
 
+
+
 app = Flask(__name__)
+
+app.secret_key = "SECRET"
 
 # Load machine learning model
 five_year = load('Models/5yr_model.joblib')
@@ -21,24 +26,72 @@ ten_year_feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'CMS',
                           'tp53_mutation_WT', 'braf_mutation_WT']
 
 
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        return response
+
+    return no_cache
+
+
+def logged_in():
+    return session.get('logged_in')
+
 @app.route('/')
+def home():
+    return redirect(url_for('login'))
+
+
+@app.route('/unauthenticated')
+def unauthenticated():
+    return render_template('unauthenticated.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('index.html')
+    if logged_in():
+        return redirect(url_for('form'))
+    error = None
+    if request.method == 'POST':
+        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+            error = 'Invalid Credentials. Please try again.'
+        else:
+            session['logged_in'] = True
+            return redirect(url_for('form'))
+
+    return render_template('login.html', error=error)
 
 
-@app.route('/login')
-def login_redirect():
-    return render_template('login.html')
+@app.route('/logout')
+def logout():
+    if not logged_in():
+        flash('Please login to continue.')
+        return redirect(url_for('unauthenticated'))
+    session.pop('logged_in', None)
+    flash('You have successfully logged out.')
+    return redirect(url_for('unauthenticated'))
 
 
 @app.route('/form')
+@nocache
 def form():
+    if not logged_in():
+        flash('Please login to continue.')
+        return redirect(url_for('unauthenticated'))
     # This could be the page with the form if separate, or just redirect to home/login
     return render_template('index.html')
 
 
 @app.route('/predict', methods=['POST'])
+@nocache
 def predict():
+    if not logged_in():
+        flash('Please login to continue.')
+        return redirect(url_for('login'))
     try:
         # Extract and process form data
         form_data = request.form
@@ -102,7 +155,11 @@ def predict():
 
 
 @app.route('/about')
+@nocache
 def about():
+    if not logged_in():
+        flash('Please login to continue.')
+        return redirect(url_for('unauthenticated'))
     return render_template("about.html")
 
 

@@ -209,12 +209,13 @@ button{
 }
 
 #login-box{
+    margin: 40px auto;
     background-color: #ffffff;
     padding: 20px 30px;
     border-radius: 15px;
-    width: 50%;
-    max-width: 800px;
-    margin: 40px auto;
+    width: 30%; /* Adjusted width */
+    max-width: 400px; /* Adjusted max width */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Optional: Add shadow for better visibility */
     outline: #d8d8d8 solid 1px;
 }
 
@@ -239,4 +240,30 @@ button{
     color: #3D84A8;
 }
 
+#return_to_login{
+    padding-top: 10px;
+}
+
+.login-button-container{
+    padding-top: 15px;
+    padding-bottom: 15px;
+    text-align: center;
+    width: 100%;
+}
+
+.btn-login{
+    width: 50%;
+    background-color: #0056b3;
+    color: white;
+    font-size: 15px;
+    margin: 0 5px;
+}
+
+.btn-login:hover{
+    background-color: #00408b;
+}
+
+#username, #password{
+    width:40%
+}
 
