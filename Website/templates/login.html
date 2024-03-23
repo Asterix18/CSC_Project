@@ -14,16 +14,19 @@
 </header>
 <div id="login-box">
     <div id="form-title"><h1>PCRC Web tool Login</h1></div>
+    <div class="error-message">
+        {% for message in get_flashed_messages() %}
+            {{ message }}
+        {% endfor %}
+    </div>
     <form method="post">
         <div class="login-row">
             <label for="username">Username:</label>
-            <input id="username" type="text" name="username" placeholder="Enter username" value="{{
-          request.form.username }}" required>
+            <input id="username" type="text" name="username" placeholder="Enter username"  required>
         </div>
         <div class="login-row">
             <label for="password">Password:</label>
-            <input id="password" type="password" name="password" placeholder="Enter password" value="{{
-          request.form.password }}" required>
+            <input id="password" type="password" name="password" placeholder="Enter password"  required>
         </div>
         <div class="login-button-container">
             <button type="submit" class="btn-login">Login</button>

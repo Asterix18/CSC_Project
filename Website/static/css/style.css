@@ -3,12 +3,12 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  font-family: Arial, sans-serif; /* Use consistent font-family */
+  overflow-x: hidden;
+  font-family: Arial, sans-serif;
 }
 
 .main-header {
-    background-color: #ffffff; /* Match header background to color in image */
+    background-color: #ffffff;
     color: #3D84A8;
     padding: 10px 20px;
     display: flex;
@@ -16,7 +16,7 @@ html, body {
     align-items: center;
     width: auto;
     height: 100px;
-    /*outline: #d8d8d8 solid 1px;*/
+
 }
 
 .logo-container img {
@@ -33,28 +33,25 @@ html, body {
 
 .main-nav ul li {
     display: inline-block;
-    margin-left: 40px; /* Adjust as needed */
-    padding: 0 10px; /* This adds some padding on the left and right of the list item */
-    position: relative; /* Needed for the pseudo-element to position correctly */
+    margin-left: 40px;
+    padding: 0 10px;
+    position: relative;
 }
 
-/* This targets all list items except the first one */
 .main-nav ul li:not(:first-child)::before {
     content: '';
     position: absolute;
     left: 0;
-    top: 50%; /* Center vertically */
-    transform: translateY(-50%); /* This will center the line to the middle of the list item */
-    height: 117px; /* This is the height of the line */
+    top: 50%;
+    height: 117px;
 
 }
 
-/* Optional: if you want to remove the left padding from the first list item */
+
 .main-nav ul li:first-child {
     padding-left: 0;
 }
 
-/* Optional: if you want to remove the right padding from the last list item */
 .main-nav ul li:last-child {
     padding-right: 0;
 }
@@ -67,28 +64,28 @@ html, body {
     text-decoration: none;
     color: #3D84A8;
     font-weight: bold;
-    font-size: 15px; /* Adjust font size for better readability */
+    font-size: 15px;
 }
 
 .main-nav a:hover {
-    color: #0056b3; /* Change hover color to match design */
+    color: #0056b3;
 }
 
 .form-container {
-    background-color: #ffffff; /* Light gray background for the form */
+    background-color: #ffffff;
     padding: 20px 30px;
     border-radius: 15px;
-    width: 45%; /* Adjust width to better fit different screen sizes */
-    max-width: 800px; /* Max width for larger screens */
-    margin: 40px auto; /* Center the form with automatic margins and add vertical spacing */
+    width: 45%;
+    max-width: 800px;
+    margin: 40px auto;
     outline: #d8d8d8 solid 1px;
 }
 
 .form {
     display: flex;
-    justify-content: flex-end; /* Space out label and input */
+    justify-content: flex-end;
     align-items: center;
-    margin-bottom: 15px; /* Space between form groups */
+    margin-bottom: 15px;
     width: 100%
 }
 
@@ -108,11 +105,11 @@ input, select {
 }
 
 input{
-    width: 40%; /* Adjust width to match design */
+    width: 40%;
 }
 
 select{
-    width: 44%; /* Adjust width to match design */
+    width: 44%;
 }
 
 button{
@@ -120,7 +117,7 @@ button{
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px; /* Increase font size for better readability */
+    font-size: 16px;
     width: 150px;
     height: 60px;
 }
@@ -213,9 +210,9 @@ button{
     background-color: #ffffff;
     padding: 20px 30px;
     border-radius: 15px;
-    width: 30%; /* Adjusted width */
-    max-width: 400px; /* Adjusted max width */
-    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Optional: Add shadow for better visibility */
+    width: 30%;
+    max-width: 400px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
     outline: #d8d8d8 solid 1px;
 }
 
@@ -267,3 +264,14 @@ button{
     width:40%
 }
 
+.hide-input{
+    display: none;
+}
+
+.error-message{
+    text-align: center;
+    width: 100%;
+    color: #b00606;
+    padding-bottom: 15px;
+    font-size: 14px;
+}
