@@ -3,20 +3,21 @@ import pandas as pd
 import seaborn as sns
 from sklearn.feature_selection import SelectKBest, chi2
 
+# Load in data
 data = pd.read_csv("../../Files/5yr/Train_Preprocessed_Data.csv")
 
+# Prepare data for chi squared test
 data = data.drop(columns=['os_months_censored_5yr'])
 data = pd.get_dummies(data, drop_first=True)
-
 features = data.drop(columns=['os_event_censored_5yr'])
 target_variable = data['os_event_censored_5yr']
 
+# Initialise SelectKBest
 k = 10
-
 selector = SelectKBest(score_func=chi2, k=k)
 
+# Fit SelectKBest
 features_selector = selector.fit_transform(features, target_variable)
-
 selected_features = features.columns[selector.get_support(indices=True)]
 
 # Get p-values for the selected features
