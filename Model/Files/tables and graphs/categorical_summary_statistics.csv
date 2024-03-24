@@ -1,0 +1,5 @@
+,sex,tumour_location,chemotherapy_adjuvant,tp53_mutation,kras_mutation,braf_mutation
+count,455,455,455,455,455,455
+unique,2,2,2,2,2,2
+top,Male,distal,N,WT,WT,WT
+freq,255,269,252,299,289,416

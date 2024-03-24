@@ -1,12 +1,14 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 from sklearn.model_selection import train_test_split
 
 # Read in patient dataframe
 data = pd.read_csv('../Files/gse39582_n469_clinical_data.csv')
 
 # Display how many missing values each column has
+original_data_size = len(data)
 print(data.isnull().sum())
 
 # Drop any columns where there are more than 100 missing values
@@ -107,6 +109,26 @@ data = data[data['os_months'] > 1]
 print(data.isnull().sum())
 print(len(data))
 
+# For numeric features
+numeric_stats = data.describe(include=[np.number])
+numeric_stats.to_csv('../Files/Tables and graphs/numeric_summary_statistics.csv', index=True)
+
+# For categorical features, if you have any left as 'object' types after encoding
+categorical_stats = data.describe(include=['object'])
+categorical_stats.to_csv('../Files/Tables and graphs/categorical_summary_statistics.csv', index=True)
+
+# Calculate data lost
+processed_data_size = len(data)
+percentage_retained = (processed_data_size / original_data_size) * 100
+percentage_lost = 100 - percentage_retained
+
+data_volume_impact_analysis = pd.DataFrame({
+    'Metric': ['Original Data Size', 'Processed Data Size', 'Percentage Retained', 'Percentage Lost'],
+    'Value': [original_data_size, processed_data_size, percentage_retained, percentage_lost]
+})
+
+data_volume_impact_analysis.to_csv('../Files/Tables and graphs/data_volume_impact_analysis.csv', index=False)
+
 # Censoring os at 5 years (60 months) in order to calculate 5 year survival rates later
 data['os_months_censored_5yr'] = data['os_months'].clip(upper=60)
 data['os_event_censored_5yr'] = data.apply(lambda row: row['os_event'] if row['os_months'] <= 60 else 0, axis=1)
@@ -147,43 +169,42 @@ test_data_10yr = test_data_10yr.drop(['os_months_censored_5yr', 'os_event_censor
                                      axis=1)
 
 # # # Save the train and test sets into separate CSV files
-train_data_5yr.to_csv('../Files/5yr/Train_Preprocessed_Data.csv', index=False)
-test_data_5yr.to_csv('../Files/5yr/Test_Preprocessed_Data.csv', index=False)
-train_data_10yr.to_csv('../Files/10yr/Train_Preprocessed_Data.csv', index=False)
-test_data_10yr.to_csv('../Files/10yr/Test_Preprocessed_Data.csv', index=False)
+# train_data_5yr.to_csv('../Files/5yr/Train_Preprocessed_Data.csv', index=False)
+# test_data_5yr.to_csv('../Files/5yr/Test_Preprocessed_Data.csv', index=False)
+# train_data_10yr.to_csv('../Files/10yr/Train_Preprocessed_Data.csv', index=False)
+# test_data_10yr.to_csv('../Files/10yr/Test_Preprocessed_Data.csv', index=False)
 
-train_count_1s = train_data_5yr['os_event_censored_5yr'].sum()
-test_count_1s = test_data_5yr['os_event_censored_5yr'].sum()
+train_count = sum(train_data_5yr['os_event_censored_5yr'])
+test_count = sum(test_data_5yr['os_event_censored_5yr'])
 
-counts = [train_count_1s, test_count_1s]
-labels = ['Training Set', 'Testing Set']
+percentages = [(train_count/len(train_data_5yr['os_event_censored_5yr'])) * 100,
+               (test_count/len(test_data_5yr['os_event_censored_5yr'])) * 100]
+labels = [f'Training Set: {int(train_count)} occurrences', f'Testing Set {int(test_count)} occurrences']
 
 plt.figure(figsize=(8, 6))
-sns.barplot(x=labels, y=counts)
+sns.barplot(x=labels, y=percentages)
 plt.title('Distribution of death event across 5yr train and test sets')
 plt.xlabel('Dataset')
-plt.ylabel('Count of death events')
+plt.ylabel('Percentage of death event occurring in data set')
+plt.savefig("5yr_event_distribution.png")
 plt.show()
 
-train_percentage = (train_count_1s / len(train_data_5yr['os_event_censored_5yr'])) * 100
-test_percentage = (test_count_1s / len(test_data_5yr['os_event_censored_5yr'])) * 100
 
-print(f"Train Death Event Percentage: {train_percentage}%\nTest Death Event Percentage: {test_percentage}%\n")
+train_count = sum(train_data_10yr['os_event_censored_10yr'])
+test_count = sum(test_data_10yr['os_event_censored_10yr'])
 
-train_count_1s = train_data_10yr['os_event_censored_10yr'].sum()
-test_count_1s = test_data_10yr['os_event_censored_10yr'].sum()
 
-counts = [train_count_1s, test_count_1s]
-labels = ['Training Set', 'Testing Set']
+counts = [(train_count / len(train_data_10yr['os_event_censored_10yr'])) * 100,
+          (test_count / len(test_data_10yr['os_event_censored_10yr'])) * 100]
+
+labels = [f'Training Set: {int(train_count)} occurrences', f'Testing Set: {int(test_count)} occurrences']
 
 plt.figure(figsize=(8, 6))
 sns.barplot(x=labels, y=counts)
 plt.title('Distribution of death event across 10yr train and test sets')
 plt.xlabel('Dataset')
-plt.ylabel('Count of death events')
+plt.ylabel('Percentage of death event occurring in data set')
+plt.savefig("10yr_event_distribution.png")
 plt.show()
 
-train_percentage = (train_count_1s / len(train_data_10yr['os_event_censored_10yr'])) * 100
-test_percentage = (test_count_1s / len(test_data_10yr['os_event_censored_10yr'])) * 100
 
-print(f"Train Death Event Percentage: {train_percentage}%\nTest Death Event Percentage: {test_percentage}%\n")
