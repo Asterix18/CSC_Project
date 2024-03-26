@@ -4,7 +4,7 @@ from sksurv.ensemble import RandomSurvivalForest
 from sksurv.metrics import cumulative_dynamic_auc, brier_score
 from sklearn.model_selection import GridSearchCV
 
-feature_dataframe = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_8.csv')
+feature_dataframe = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_7.csv')
 feature_dataframe['os_event_censored_10yr'] = feature_dataframe['os_event_censored_10yr'].astype(bool)
 features = feature_dataframe.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
 time_to_event_data = feature_dataframe[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)

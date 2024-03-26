@@ -7,6 +7,9 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.inspection import permutation_importance
 from sksurv.metrics import cumulative_dynamic_auc, brier_score
 
+# Load in test data
+test_data = pd.read_csv('../../Files/10yr/Individual_test.csv')
+
 # Setup file paths
 features_file_paths = (['../../Files/10yr/RSFFeatureSets/Best_Features_1.csv',
                         '../../Files/10yr/RSFFeatureSets/Best_Features_2.csv',
@@ -80,6 +83,7 @@ for feature_sets in feature_dataframes:
 
     # Initialise variables
     fold_counter = 1
+    av_5yr_surv = 0
 
     # Split data into features and time to event data
     features = feature_sets.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
@@ -113,9 +117,20 @@ for feature_sets in feature_dataframes:
         # Get fold importances
         importances.append(get_importances(rsf_validation, features_validation, time_to_event_validation))
 
+        # Check 5 year survival rates for individual patient to attempt to align 5 and 10 year models
+        individual_test = test_data[features.columns]
+
+        survival_probabilities = rsf_validation.predict_survival_function(individual_test)
+        time_points = survival_probabilities[0].x
+        probabilities = survival_probabilities[0].y
+        time_index = np.where(time_points == 60)[0][0]
+        five_year_survival_probability = probabilities[time_index]
+        av_5yr_surv += five_year_survival_probability
+
         fold_counter = fold_counter + 1
 
     # Calculate average metrics for feature set
+    av_5yr_surv = av_5yr_surv / 5
     average_c_index = np.mean(c_indices)
     average_brier_scores = np.mean(brier_scores, axis=1)
     average_brier_mean_score = np.mean(average_brier_scores)
@@ -126,7 +141,8 @@ for feature_sets in feature_dataframes:
         'Feature Set': [feature_set_counter],
         '5-Fold C-Index': [average_c_index],
         '5-Fold B-Score': [average_brier_mean_score],
-        '5-Fold AUC': [average_auc_means_score]
+        '5-Fold AUC': [average_auc_means_score],
+        '5 year Survival': av_5yr_surv
     })
     feature_set_metrics.append(df_current_feature_set)
 

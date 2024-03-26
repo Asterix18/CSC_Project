@@ -55,6 +55,7 @@ print(f"Fold\tC-Index\t\t\t\t\tBrier Score\t\t\t\tAUC")
 for train_index, test_index in skf.split(features, time_to_event_data['os_event_censored_10yr']):
     features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
     time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
+    print(features_validation.columns)
 
     rsf_model_validate = RandomSurvivalForest(max_depth=15, max_features='sqrt', min_samples_leaf=1,
                                               min_samples_split=6, n_estimators=500, random_state=40)
@@ -149,3 +150,21 @@ plt.show()
 print("\n\n\n*** Analysis Finished ***")
 
 dump(rsf_model_test, "../../../Website/Models/10yr_model.joblib", compress=3)
+
+# Load in test data
+individual_test = pd.read_csv('../../Files/10yr/Individual_test.csv')
+
+individual_test = pd.get_dummies(individual_test, drop_first=True)
+
+individual_test = individual_test[best_feature_columns]
+
+# Split labels and features
+individual_test = individual_test.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
+
+print(individual_test)
+survival_probabilities = rsf_model_test.predict_survival_function(individual_test)
+time_points = survival_probabilities[0].x
+probabilities = survival_probabilities[0].y
+time_index = np.where(time_points == 60)[0][0]
+five_year_survival_probability = probabilities[time_index]
+print(f"5-year survival probability: {five_year_survival_probability}")

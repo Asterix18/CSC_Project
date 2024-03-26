@@ -13,7 +13,7 @@ param_grid = {
     'max_depth': [3, 9, 15, None],
     'min_samples_split': [2, 6, 10, 14],
     'min_samples_leaf': [1, 2, 3, 4],
-    'max_features': ['sqrt', 'log2', None]
+    'max_features': ['sqrt', 'log2']
 }
 
 # Create RSF model instance

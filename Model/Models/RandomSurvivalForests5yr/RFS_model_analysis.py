@@ -109,8 +109,7 @@ test_time_to_event_data = best_features_test_data[['os_event_censored_5yr', 'os_
     index=False)
 
 # Initiate model with optimal parameters
-rsf_model_test = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=1, min_samples_split=2,
-                                      n_estimators=100, random_state=40)
+rsf_model_test = RandomSurvivalForest(max_depth=3, min_samples_split=2, min_samples_leaf=1, n_estimators=100, random_state=40)
 
 rsf_model_test.fit(features, time_to_event_data)
 
@@ -150,20 +149,22 @@ plt.show()
 
 # print(pd.Series(rsf_model_test.predict(X_test_sel)))
 
-# Get the survival probability for an individual patient at 5 years
-# individual_test = X_test_sorted.head(1)
-# survival_probabilities = rsf.predict_survival_function(individual_test)
-# time_points = survival_probabilities[0].x
-# probabilities = survival_probabilities[0].y
-# time_index = np.where(time_points == 60)[0][0]
-# five_year_survival_probability = probabilities[time_index]
-# print(f"5-year survival probability: {five_year_survival_probability}")
+# Load in test data
+individual_test = pd.read_csv('../../Files/5yr/Individual_test.csv')
 
-# # Get the survival probability for an individual patient at 10 years
-# time_index2 = np.where(time_points == 120)[0][0]
-# ten_year_survival_probability = probabilities[time_index2]
-# print(f"10-year survival probability: {ten_year_survival_probability}")
+individual_test = pd.get_dummies(individual_test, drop_first=True)
 
-print("\n\n\n*** Analysis Finished ***")
+individual_test = individual_test[best_feature_columns]
 
-dump(rsf_model_test, "../../../Website/Models/5yr_model.joblib", compress=3)
+# Split labels and features
+individual_test = individual_test.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
+
+print(individual_test)
+survival_probabilities = rsf_model_test.predict_survival_function(individual_test)
+time_points = survival_probabilities[0].x
+probabilities = survival_probabilities[0].y
+time_index = np.where(time_points == 60)[0][0]
+five_year_survival_probability = probabilities[time_index]
+print(f"5-year survival probability: {five_year_survival_probability}")
+
+# dump(rsf_model_test, "../../../Website/Models/5yr_model.joblib", compress=3)

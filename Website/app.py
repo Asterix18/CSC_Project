@@ -12,6 +12,8 @@ app = Flask(__name__)
 
 app.secret_key = "SECRET"
 
+logins = {"Mike": "password1", "John": "password2", "admin": "admin"}
+
 # Load machine learning model
 five_year = load('Models/5yr_model.joblib')
 ten_year = load('Models/10yr_model.joblib')
@@ -22,8 +24,8 @@ five_year_feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'mmr_status
                            'kras_mutation_WT', 'braf_mutation_WT']
 
 ten_year_feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'CMS',
-                          'rfs_event_censored_10yr', 'sex_Male', 'tumour_location_proximal', 'chemotherapy_adjuvant_Y',
-                          'tp53_mutation_WT', 'braf_mutation_WT']
+                          'sex_Male', 'tumour_location_proximal', 'chemotherapy_adjuvant_Y',
+                          'tp53_mutation_WT', 'braf_mutation_WT', 'rfs_event_censored_5yr', 'rfs_event_censored_10yr']
 
 
 def nocache(view):
@@ -57,12 +59,13 @@ def login():
     if logged_in():
         return redirect(url_for('form'))
     if request.method == 'POST':
-        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-            flash('Invalid Credentials. Please try again.')
-        else:
+        username = request.form['username']
+        password = request.form['password']
+        if username in logins and logins[username] == password:
             session['logged_in'] = True
             return redirect(url_for('form'))
-
+        else:
+            flash('Invalid Credentials. Please try again.')
     return render_template('login.html')
 
 
@@ -129,13 +132,10 @@ def predict():
         five_year_time_points = survival_probabilities.x
         five_year_probabilities = survival_probabilities.y
 
-        # Extract the survival probabilities at specific time points
-        one_year_probability = five_year_probabilities[np.where(five_year_time_points == 12)[0][0]]
-        five_year_probability = five_year_probabilities[np.where(five_year_time_points == 60)[0][0]]
-
         # Ten Year Calculations
-        ten_year_input_data = [[age, tnm_stage, cms, rfs_event_censored_10yr, sex_Male, tumour_location_proximal,
-                                chemotherapy_adjuvant_Y, tp53_mutation_WT, braf_mutation_WT]]
+        ten_year_input_data = [[age, tnm_stage, cms, sex_Male, tumour_location_proximal,
+                                chemotherapy_adjuvant_Y, tp53_mutation_WT, braf_mutation_WT, rfs_event_censored_5yr,
+                                rfs_event_censored_10yr]]
 
         ten_year_input_df = pd.DataFrame(ten_year_input_data, columns=ten_year_feature_names)
 
@@ -144,9 +144,10 @@ def predict():
         ten_year_probabilities = survival_probabilities.y
 
         # Extract the survival probabilities at specific time points
+        one_year_probability = five_year_probabilities[np.where(five_year_time_points == 12)[0][0]]
+        five_year_probability = five_year_probabilities[np.where(five_year_time_points == 60)[0][0]]
         ten_year_probability = ten_year_probabilities[np.where(ten_year_time_points == 120)[0][0]]
 
-        # Return JSON data
         return jsonify(one_year=one_year_probability, five_year=five_year_probability, ten_year=ten_year_probability,
                        first_name=first_name, last_name=last_name)
     except Exception as e:

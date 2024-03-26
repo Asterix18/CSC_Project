@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 prioritize_bestP = False
 
 data = pd.read_csv('../../Files/10yr/Train_Preprocessed_Data.csv')
-data = data.drop(['rfs_months_censored_10yr', 'tnm.m', 'tnm.n', 'tnm.t'], axis=1)
+data = data.drop(['tnm.m', 'tnm.n', 'tnm.t', 'kras_mutation'], axis=1)
 data = pd.get_dummies(data, drop_first=True)  # Convert categorical variables to dummy variables
 
 significant_level = 0.1

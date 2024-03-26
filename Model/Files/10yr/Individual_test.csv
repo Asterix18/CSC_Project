@@ -1,0 +1,2 @@
+﻿sex_Male,age_at_diagnosis_in_years,tnm_stage,tnm.t,tnm.n,tnm.m,tumour_location_proximal,chemotherapy_adjuvant_Y,mmr_status,cimp_status,cin_status,tp53_mutation_WT,kras_mutation_WT,braf_mutation_WT,CMS,os_months_censored_10yr,os_event_censored_10yr,rfs_event_censored_5yr,rfs_event_censored_10yr
+FALSE,76.4,3,3,2,0,FALSE,TRUE,0,0,1,TRUE,TRUE,TRUE,1,9,0,1,0

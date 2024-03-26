@@ -69,7 +69,7 @@
             </select><br>
         </div>
         <div class="form hide-input" id="relapseAfter60Container">
-            <label for="rfs_event_censored_10yr">Relapse Occurred Within 120 months</label>
+            <label for="rfs_event_censored_10yr">Relapse Occurred after 60 months</label>
             <select name="rfs_event_censored_10yr" id="rfs_event_censored_10yr" required>
                 <option value="" selected disabled>select an option</option>
                 <option value="0">No</option>
@@ -128,7 +128,7 @@
             <label for="cms">CMS</label>
             <select name="cms" id="cms" required>
                 <option value="" selected disabled>select an option</option>
-                <option value=0>CMS1"</option>
+                <option value=0>CMS1</option>
                 <option value=1>CMS2</option>
                 <option value=2>CMS3</option>
                 <option value=3>CMS4</option>
@@ -162,7 +162,7 @@
             // If relapse occurred within 60 months hide the within 120 months option and set it to yes
             if (this.value === "1") {
                 relapseAfter60Container.classList.add("hide-input")
-                relapseAfter60.value = "1"
+                relapseAfter60.value = "0"
                 // if relapse did not occur within 60 months give the user the option to select after 60 months
             } else {
                 relapseAfter60Container.classList.remove("hide-input");
@@ -198,6 +198,9 @@
                         </div>
                         <div class="results-style">
                             <span class="result-label">10-Year Survival Probability:</span> <span class="result-value">${(data.ten_year.toFixed(2)) * 100}%</span>
+                        </div>
+                        <div class="results-style">
+                            <span class="result-label">Recommended Treatment Plan:</span> <span class="result-value">Feature not yet implemented</span>
                         </div>
                         <div class="button-container">
                             <button class="clear-form-btn" onclick="window.location.reload();">New Prediction</button>
