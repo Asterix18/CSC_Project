@@ -60,12 +60,22 @@ data_correlation = pd.get_dummies(data_correlation, drop_first=True)
 correlation_matrix = data_correlation.corr()
 
 # Display the correlation matrix using a heatmap
-plt.figure(figsize=(10, 10))
-sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
-plt.title("Correlation Matrix of all features")
+# plt.figure(figsize=(10, 10))
+# sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
+# plt.title("Correlation Matrix of all features")
 # plt.show()
+#
+# plt.figure(figsize=(15, 3))
 
-# Assign means/modes to missing values
+
+# Correlation matrix only showing missing value columns correlation
+sns.heatmap(correlation_matrix.loc[['cimp_status', 'cin_status', 'mmr_status']], annot=True, cmap='coolwarm', fmt=".2f")
+plt.title("Correlation of cimp_status, cin_status, and mmr_status with All Features")
+plt.xticks(rotation=90)
+plt.yticks(rotation=0)
+plt.tight_layout()
+plt.show()
+
 
 # Fill in mmr_status missing values based off cimp_status (Correlation = 0.51)
 mmr_status_for_cimp_0 = data[data['cimp_status'] == 0]['mmr_status'].mode()[0]
