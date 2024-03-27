@@ -41,6 +41,7 @@ def cross_val_svm(a, data_set):
     return c_indices
 
 
+
 def split_data(data_set):
     features = data_set.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
     time_to_event_data = data_set[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)

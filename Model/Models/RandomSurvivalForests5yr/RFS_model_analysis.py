@@ -39,7 +39,7 @@ def plot_auc(t, a_scores, a_mean):
 
 
 # Read in data set
-data = pd.read_csv('../../Files/5yr/RSFFeatureSets/Best_Features_4.csv')
+data = pd.read_csv('../../Files/5yr/RSFFeatureSets/Best_Features_6.csv')
 data['os_event_censored_5yr'] = data['os_event_censored_5yr'].astype(bool)
 features = data.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
 time_to_event_data = data[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(index=False)
@@ -60,8 +60,13 @@ for train_index, test_index in skf.split(features, time_to_event_data['os_event_
     features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
     time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
 
-    rsf_model_validate = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=1, min_samples_split=2,
-                                              n_estimators=100, random_state=40)
+    # Feature set 4
+    # rsf_model_validate = RandomSurvivalForest(max_depth=9, min_samples_leaf=1, min_samples_split=14,
+    #                                           n_estimators=300, random_state=40)
+
+    # Feature set 6
+    rsf_model_validate = RandomSurvivalForest(max_depth=3, min_samples_leaf=3, min_samples_split=2,
+                                              n_estimators=300, random_state=40)
 
     # Fit Model
     rsf_model_validate.fit(features_train, time_to_event_train)
@@ -108,8 +113,13 @@ test_features = best_features_test_data.drop(['os_event_censored_5yr', 'os_month
 test_time_to_event_data = best_features_test_data[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(
     index=False)
 
-# Initiate model with optimal parameters
-rsf_model_test = RandomSurvivalForest(max_depth=3, min_samples_split=2, min_samples_leaf=1, n_estimators=100, random_state=40)
+# Initiate model with optimal parameters. Feature set 4
+# rsf_model_test = RandomSurvivalForest(max_depth=9, min_samples_leaf=1, min_samples_split=14,
+#                                               n_estimators=300, random_state=40)
+
+# Initiate model with optimal parameters. Feature set 6
+rsf_model_test = RandomSurvivalForest(max_depth=3, min_samples_leaf=3, min_samples_split=2,
+                                              n_estimators=300, random_state=40)
 
 rsf_model_test.fit(features, time_to_event_data)
 
