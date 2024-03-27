@@ -40,7 +40,8 @@ def parameter_selection(dataset):
     grid_search.fit(feature_set, event_set)
 
     # Print the best parameters
-    return grid_search.best_params_
+    return grid_search.best_params_, grid_search.best_score_
+
 
 
 # Set up grid
@@ -53,8 +54,16 @@ param_grid = {
 
 # Setup file paths
 features_file_paths = ([
-    '../../Files/5yr/RSFFeatureSets/Best_Features_4.csv',  # data set 1 best parameters: {'max_depth': 9, 'min_samples_leaf': 1, 'min_samples_split': 14, 'n_estimators': 300}
-    '../../Files/5yr/RSFFeatureSets/Best_Features_6.csv',  # data set 2 best parameters: {'max_depth': 3, 'min_samples_leaf': 3, 'min_samples_split': 2, 'n_estimators': 300}
+    '../../Files/5yr/RSFFeatureSets/Best_Features_1.csv',
+    '../../Files/5yr/RSFFeatureSets/Best_Features_2.csv',
+    '../../Files/5yr/RSFFeatureSets/Best_Features_3.csv',
+    '../../Files/5yr/RSFFeatureSets/Best_Features_4.csv',
+    # data set 4 best parameters: {'max_depth': 9, 'min_samples_leaf': 1, 'min_samples_split': 14, 'n_estimators': 300}
+    '../../Files/5yr/RSFFeatureSets/Best_Features_5.csv',
+    '../../Files/5yr/RSFFeatureSets/Best_Features_6.csv',
+    # data set 6 best parameters: {'max_depth': 3, 'min_samples_leaf': 3, 'min_samples_split': 2, 'n_estimators': 300}
+    '../../Files/5yr/RSFFeatureSets/Best_Features_7.csv',
+    '../../Files/5yr/RSFFeatureSets/Best_Features_8.csv'
 ])
 
 counter = 1
@@ -63,5 +72,6 @@ for file_path in features_file_paths:
     feature_dataframe = pd.read_csv(file_path)
     feature_dataframe['os_event_censored_5yr'] = feature_dataframe['os_event_censored_5yr'].astype(bool)
     # Run grid search on chosen data sets
-    print(f"Data set {counter} best parameters: {parameter_selection(feature_dataframe)}")
+    best_parameters, best_score = parameter_selection(feature_dataframe)
+    print(f"Data set {counter} best parameters: {best_parameters} with a combined score of {best_score}")
     counter += 1
