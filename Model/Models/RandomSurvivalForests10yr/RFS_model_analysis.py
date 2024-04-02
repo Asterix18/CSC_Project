@@ -8,6 +8,8 @@ from sklearn.inspection import permutation_importance
 from sklearn.model_selection import StratifiedKFold
 
 
+best_parameters = {'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 6, 'n_estimators': 500}
+
 def evaluate_model(t, x_test, y_test, y_train, model):
     # Evaluate the model
     # Concordance Index
@@ -55,19 +57,9 @@ print(f"Fold\tC-Index\t\t\t\t\tBrier Score\t\t\t\tAUC")
 for train_index, test_index in skf.split(features, time_to_event_data['os_event_censored_10yr']):
     features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
     time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
-    print(features_validation.columns)
 
-    # Initiate model with optimal parameters for feature set 2
-    # rsf_model_validate = RandomSurvivalForest(max_depth=9, min_samples_leaf=1, max_features='sqrt',
-    #                                           min_samples_split=6, n_estimators=100, random_state=40)
-
-    # # Initiate model with optimal parameters for feature set 4
-    rsf_model_validate = RandomSurvivalForest(max_depth=3, min_samples_leaf=4, max_features='sqrt',
-                                              min_samples_split=14, n_estimators=300, random_state=40)
-    #
-    # # Initiate model with optimal parameters for feature set 8
-    # rsf_model_validate = RandomSurvivalForest(max_depth=None, min_samples_leaf=1, max_features='sqrt',
-    #                                           min_samples_split=6, n_estimators=300, random_state=40)
+    # Initiate model with optimal parameters
+    rsf_model_validate = RandomSurvivalForest(random_state=40, **best_parameters)
 
     # Fit Model
     rsf_model_validate.fit(features_train, time_to_event_train)
@@ -114,17 +106,9 @@ test_features = best_features_test_data.drop(['os_event_censored_10yr', 'os_mont
 test_time_to_event_data = best_features_test_data[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(
     index=False)
 
-# # Initiate model with optimal parameters for feature set 2
-# rsf_model_test = RandomSurvivalForest(max_depth=9, min_samples_leaf=1, max_features='sqrt',
-#                                           min_samples_split=6, n_estimators=100, random_state=40)
 
-# # Initiate model with optimal parameters for feature set 4
-# rsf_model_test = RandomSurvivalForest(max_depth=3, min_samples_leaf=4, max_features='sqrt',
-#                                           min_samples_split=14, n_estimators=300, random_state=40)
-#
-# # Initiate model with optimal parameters for feature set 8
-rsf_model_test = RandomSurvivalForest(max_depth=None, min_samples_leaf=1, max_features='sqrt',
-                                          min_samples_split=6, n_estimators=300, random_state=40)
+# Initiate model with optimal parameters
+rsf_model_test = RandomSurvivalForest(random_state=40, **best_parameters)
 
 rsf_model_test.fit(features, time_to_event_data)
 
@@ -147,7 +131,7 @@ print("\n\nTable displaying metrics for cross validation and unseen data\n", met
 
 plot_auc(times, auc_test, auc_mean_test)
 
-metrics_tables.to_csv("../../Files/tables and graphs/10yr_rsf_metrics.csv", index=False)
+#metrics_tables.to_csv("../../Files/tables and graphs/10yr_rsf_metrics.csv", index=False)
 
 # Further Analysis
 # Display probabilities for first 5 and last 5 entries in test data (sorted by age)

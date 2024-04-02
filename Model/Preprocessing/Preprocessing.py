@@ -9,7 +9,19 @@ data = pd.read_csv('../Files/gse39582_n469_clinical_data.csv')
 
 # Display how many missing values each column has
 original_data_size = len(data)
-print(data.isnull().sum())
+missing_values = data.isnull().sum()
+missing_values_filtered = missing_values[missing_values > 0]
+print(missing_values_filtered)
+plt.figure(figsize=(10, 15))
+missing_values_filtered.plot(kind='bar')
+plt.title('Missing Values in Each Column')
+plt.xlabel('Columns')
+plt.ylabel('Number of Missing Values')
+plt.xticks(rotation=90)
+plt.show()
+
+# Drop any rows where the patient has died or the study has ended after only 1 month
+data = data[data['os_months'] > 1]
 
 # Drop any columns where there are more than 100 missing values
 data = data.dropna(axis=1, thresh=len(data) - 100)
@@ -69,13 +81,14 @@ correlation_matrix = data_correlation.corr()
 
 
 # Correlation matrix only showing missing value columns correlation
+plt.figure(figsize=(10, 4))
 sns.heatmap(correlation_matrix.loc[['cimp_status', 'cin_status', 'mmr_status']], annot=True, cmap='coolwarm', fmt=".2f")
 plt.title("Correlation of cimp_status, cin_status, and mmr_status with All Features")
 plt.xticks(rotation=90)
 plt.yticks(rotation=0)
 plt.tight_layout()
+plt.savefig("CorrelationMatrix.png")
 plt.show()
-
 
 # Fill in mmr_status missing values based off cimp_status (Correlation = 0.51)
 mmr_status_for_cimp_0 = data[data['cimp_status'] == 0]['mmr_status'].mode()[0]
@@ -111,8 +124,7 @@ data = tnm_fill_with_mode(data, 'tnm_stage', 'tnm.m')
 # Drop any empty chemotherapy_adjuvant rows (only 2)
 data = data.dropna(subset=['chemotherapy_adjuvant'])
 
-# Drop any rows where the patient has died or the study has ended after only 1 month
-data = data[data['os_months'] > 1]
+
 
 # Print summary and dataframe length to check there are no columns with missing values and the data frame is still a
 # suitable size
@@ -182,8 +194,8 @@ test_data_10yr = test_data_10yr.drop(['os_months_censored_5yr', 'os_event_censor
 # # # Save the train and test sets into separate CSV files
 # train_data_5yr.to_csv('../Files/5yr/Train_Preprocessed_Data.csv', index=False)
 # test_data_5yr.to_csv('../Files/5yr/Test_Preprocessed_Data.csv', index=False)
-train_data_10yr.to_csv('../Files/10yr/Train_Preprocessed_Data.csv', index=False)
-test_data_10yr.to_csv('../Files/10yr/Test_Preprocessed_Data.csv', index=False)
+# train_data_10yr.to_csv('../Files/10yr/Train_Preprocessed_Data.csv', index=False)
+# test_data_10yr.to_csv('../Files/10yr/Test_Preprocessed_Data.csv', index=False)
 
 train_count = sum(train_data_5yr['os_event_censored_5yr'])
 test_count = sum(test_data_5yr['os_event_censored_5yr'])
