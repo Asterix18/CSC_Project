@@ -31,6 +31,7 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/AllData.png")
 plt.show()
 
 # ****** Genders ******
@@ -56,6 +57,7 @@ plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.legend()
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/Sex.png")
 plt.show()
 
 # ****** Ages ******
@@ -81,6 +83,7 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/Age.png")
 plt.show()
 
 # ****** Chemotherapy ******
@@ -107,6 +110,7 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/Chemotherapy.png")
 plt.show()
 
 # ****** TP53 Mutation ******
@@ -132,6 +136,7 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/TP53.png")
 plt.show()
 
 # ****** TNM Stage ******
@@ -157,6 +162,7 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/TNM_stage.png")
 plt.show()
 
 # ****** BRAF Mutation ******
@@ -182,6 +188,7 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/BRAF_Mutation.png")
 plt.show()
 
 # ****** KRAS Mutation ******
@@ -207,6 +214,7 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/KRAS_mutation.png")
 plt.show()
 
 # ****** Tumour Location ******
@@ -232,9 +240,36 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/Tumour_location.png")
 plt.show()
 
-# ****** Relapse Event ******
+# ****** Relapse Event 5 year ******
+# Relapsed
+relapse = data[data['rfs_event_censored_5yr'] == 1]
+# Fit the model
+kmf.fit(durations=
+        relapse['os_months_censored_10yr'], event_observed=relapse['os_event_censored_10yr'], label="Relapse")
+# Plot the survival curve
+plt.figure(figsize=(10, 6))
+kmf.plot_survival_function()
+
+# Did not relapse
+no_relapse = data[data['rfs_event_censored_5yr'] == 0]
+# Fit the model
+kmf.fit(durations=no_relapse['os_months_censored_10yr'], event_observed=no_relapse['os_event_censored_10yr'],
+        label="No Relapse")
+# Plot the survival curve
+kmf.plot_survival_function()
+plt.title('10 year Kaplan-Meier Survival Curve - Relapse Event within 5 years')
+plt.xlabel('Time in Months')
+plt.ylabel('Survival Probability')
+plt.xlim(x_axis_limits)
+plt.ylim(y_axis_limits)
+plt.grid(True)
+plt.savefig("KaplanMeierCurves/relapse5yr.png")
+plt.show()
+
+# ****** Relapse Event after 5 years ******
 # Relapsed
 relapse = data[data['rfs_event_censored_10yr'] == 1]
 # Fit the model
@@ -251,12 +286,13 @@ kmf.fit(durations=no_relapse['os_months_censored_10yr'], event_observed=no_relap
         label="No Relapse")
 # Plot the survival curve
 kmf.plot_survival_function()
-plt.title('10 year Kaplan-Meier Survival Curve - Relapse Event')
+plt.title('10 year Kaplan-Meier Survival Curve - Relapse Event after 5 years')
 plt.xlabel('Time in Months')
 plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/relapse10yr.png")
 plt.show()
 
 # ****** MMR Status ******
@@ -282,6 +318,7 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/mmr_status.png")
 plt.show()
 
 # ****** CIMP Status ******
@@ -307,6 +344,7 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/cimp_status.png")
 plt.show()
 
 # ****** CIN Status ******
@@ -332,6 +370,7 @@ plt.ylabel('Survival Probability')
 plt.xlim(x_axis_limits)
 plt.ylim(y_axis_limits)
 plt.grid(True)
+plt.savefig("KaplanMeierCurves/cin_status.png")
 plt.show()
 
 # ****** tnm.t ******
@@ -349,7 +388,7 @@ plt.title('Survival curves by tnm.t category up to 5 years')
 plt.xlabel('Time in months')
 plt.ylabel('Survival Probability')
 plt.legend(title='tnm.t category')
-# plt.savefig('../../Files/10yr/KaplanMeierCurves/tnm_t.png')
+plt.savefig("KaplanMeierCurves/tnmt.png")
 plt.show()
 
 # ****** tnm.n ******
@@ -367,8 +406,28 @@ plt.title('Survival curves by tnm.n category up to 5 years')
 plt.xlabel('Time in months')
 plt.ylabel('Survival Probability')
 plt.legend(title='tnm.n category')
-# plt.savefig('../../Files/10yr/KaplanMeierCurves/tnm_n.png')
+plt.savefig("KaplanMeierCurves/tnmn.png")
 plt.show()
+
+
+# ****** tnm.m ******
+for tnm_n_category in data['tnm.m'].unique():
+    mask = data['tnm.m'] == tnm_n_category
+    kmf.fit(durations=data[mask]['os_months_censored_10yr'],
+            event_observed=data[mask]['os_event_censored_10yr'],
+            label=str(tnm_n_category))
+    if confidence_intervals_off:
+        kmf.plot_survival_function(ci_show=False)
+    else:
+        kmf.plot_survival_function()
+
+plt.title('Survival curves by tnm.m category up to 5 years')
+plt.xlabel('Time in months')
+plt.ylabel('Survival Probability')
+plt.legend(title='tnm.n category')
+plt.savefig("KaplanMeierCurves/tnmm.png")
+plt.show()
+
 
 # ****** CMS ******
 for CMS_category in data['CMS'].unique():
@@ -385,7 +444,7 @@ plt.title('Survival curves by CMS category up to 5 years')
 plt.xlabel('Time in months')
 plt.ylabel('Survival Probability')
 plt.legend(title='CMS')
-# plt.savefig('../../Files/10yr/KaplanMeierCurves/CMS.png')
+plt.savefig("KaplanMeierCurves/CMS.png")
 plt.show()
 
 # ****** LogRank Tests ******
