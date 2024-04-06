@@ -50,7 +50,7 @@ def score_model(model, X, y):
     rsf_probabilities = np.row_stack([fn(t) for fn in model.predict_survival_function(X)])
     b_score = brier_score(y, y, rsf_probabilities, t)
 
-    score = c_index - (b_score[1][0])
+    score = c_index - (b_score[1][0]*2)
 
     return score
 
@@ -72,7 +72,7 @@ def parameter_selection(dataset):
 
 # Set up grid
 param_grid = {
-    'n_estimators': [100, 300, 500],
+    'n_estimators': [100, 300, 500, 700],
     'max_depth': [3, 9, 15, None],
     'min_samples_split': [2, 6, 10, 14],
     'min_samples_leaf': [1, 2, 3, 4]
@@ -83,21 +83,13 @@ individual_test_data = pd.read_csv('../../Files/5yr/Individual_test.csv')
 
 # Setup file paths
 features_file_paths = ([
-    '../../Files/5yr/RSFFeatureSets/Best_Features_3.csv', # {'max_depth': 3, 'min_samples_leaf': 3, 'min_samples_split': 10, 'n_estimators': 500}
-    '../../Files/5yr/RSFFeatureSets/Best_Features_4.csv', # {'max_depth': 3, 'min_samples_leaf': 4, 'min_samples_split': 10, 'n_estimators': 300}
+    '../../Files/5yr/RSFFeatureSets/Best_Features_2.csv', # {'max_depth': 15, 'min_samples_leaf': 2, 'min_samples_split': 10, 'n_estimators': 100}
+    '../../Files/5yr/RSFFeatureSets/Best_Features_3.csv', # {'max_depth': 9, 'min_samples_leaf': 3, 'min_samples_split': 14, 'n_estimators': 500}
+    '../../Files/5yr/RSFFeatureSets/Best_Features_4.csv', # {'max_depth': 9, 'min_samples_leaf': 1, 'min_samples_split': 14, 'n_estimators': 300}
     '../../Files/5yr/RSFFeatureSets/Best_Features_5.csv', # {'max_depth': 15, 'min_samples_leaf': 4, 'min_samples_split': 14, 'n_estimators': 500}
     '../../Files/5yr/RSFFeatureSets/Best_Features_6.csv', # {'max_depth': 3, 'min_samples_leaf': 3, 'min_samples_split': 2, 'n_estimators': 300}
-    '../../Files/5yr/RSFFeatureSets/Best_Features_7.csv', # {'max_depth': 3, 'min_samples_leaf': 2, 'min_samples_split': 10, 'n_estimators': 300}
-    '../../Files/5yr/RSFFeatureSets/Best_Features_10.csv' # {'max_depth': 3, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 300}
+    '../../Files/5yr/RSFFeatureSets/Best_Features_7.csv', # {'max_depth': 9, 'min_samples_leaf': 4, 'min_samples_split': 14, 'n_estimators': 300}
 ])
-
-#     Feature Set  5-Fold C-Index  5-Fold B-Score  5-Fold AUC  5 year Survival
-#             3        0.821019        0.131339    0.868132         0.480373
-#             4        0.823581        0.126266    0.872244         0.423661
-#             5        0.821871        0.124024    0.869369         0.445648
-#             6        0.822565        0.126393    0.871925         0.433558
-#             7        0.824886        0.127720    0.870872         0.473274
-#            10        0.823151        0.125483    0.869188         0.403066
 
 # Load in data sets
 feature_dataframes = []
@@ -111,7 +103,7 @@ for file_path in features_file_paths:
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=40)
 
 # Initialise variables
-feature_set_counter = 1
+feature_set_counter = 2
 times = np.array([59])
 
 # Initialise arrays
@@ -197,12 +189,12 @@ for feature_sets in feature_dataframes:
     feature_set_metrics.append(df_current_feature_set)
 
     # Calculate average importances for feature set
-    # avg_importances = sum(importances) / len(importances)
-    # importance_df = pd.DataFrame({
-    #     'Feature': features.columns,
-    #     'Importance': avg_importances
-    # }).sort_values(by='Importance', ascending=False)
-    # print("\n", importance_df)
+    avg_importances = sum(importances) / len(importances)
+    importance_df = pd.DataFrame({
+        'Feature': features.columns,
+        'Importance': avg_importances
+    }).sort_values(by='Importance', ascending=False)
+    print("\n", importance_df)
 
     feature_set_counter += 1
 

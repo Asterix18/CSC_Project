@@ -84,7 +84,7 @@ age_at_diagnosis_in_years,tnm_stage,cimp_status,os_months_censored_5yr,os_event_
 75.0,3,0.0,47.0,1.0,0.0,True,True,True
 83.0,3,1.0,42.0,0.0,0.0,True,False,True
 54.0,3,0.0,60.0,0.0,0.0,False,False,True
-76.0,3,0.0,60.0,1.0,0.0,False,True,True
+76.0,3,0.0,59.9,1.0,0.0,False,True,True
 88.0,2,0.0,42.0,1.0,0.0,False,False,True
 76.0,2,0.0,11.0,0.0,0.0,False,False,False
 67.0,3,0.0,60.0,0.0,0.0,True,True,False

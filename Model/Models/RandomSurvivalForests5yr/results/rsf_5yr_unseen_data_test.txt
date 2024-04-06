@@ -1,0 +1,47 @@
+
+Feature Set 3
+Table displaying metrics for cross validation and unseen data
+              Method   C-Index  Average B-Score  Average AUC
+     Cross Validation  0.820004         0.123025     0.860473
+          Unseen Data  0.819383         0.113729     0.906612
+
+
+Feature Set 4
+	Table displaying metrics for cross validation and unseen data
+              Method   C-Index  Average B-Score  Average AUC
+0  Cross Validation  0.826026         0.119011     0.869853
+1       Unseen Data  0.823789         0.113046     0.909406
+
+Feature Set 5
+	Table displaying metrics for cross validation and unseen data
+              Method   C-Index  Average B-Score  Average AUC
+0  Cross Validation  0.821871         0.124024     0.864360
+1       Unseen Data  0.830396         0.112163     0.914624
+
+Feature set 5 after dropping braf and cimp
+	Table displaying metrics for cross validation and unseen data
+              Method   C-Index  Average B-Score  Average AUC
+0  Cross Validation  0.831200         0.125702     0.871217
+1       Unseen Data  0.835903         0.116098     0.922685
+
+
+Feature set 5 after further tuning of parameters{'max_depth': 9, 'min_samples_leaf': 1, 'min_samples_split': 14, 'n_estimators': 500}
+	Table displaying metrics for cross validation and unseen data
+              Method   C-Index  Average B-Score  Average AUC
+0  Cross Validation  0.832885         0.123205     0.875812
+1       Unseen Data  0.829295         0.116964     0.914223
+
+
+Feature Set 6
+	Table displaying metrics for cross validation and unseen data
+              Method   C-Index  Average B-Score  Average AUC
+0  Cross Validation  0.822565         0.126393     0.866075
+1       Unseen Data  0.825991         0.117711     0.903166
+
+
+Feature Set  7
+	Table displaying metrics for cross validation and unseen data
+              Method   C-Index  Average B-Score  Average AUC
+0  Cross Validation  0.822451         0.121526     0.864988
+1       Unseen Data  0.822687         0.112865     0.903013
+

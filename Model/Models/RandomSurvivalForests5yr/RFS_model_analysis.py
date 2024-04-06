@@ -7,7 +7,7 @@ from sksurv.ensemble import RandomSurvivalForest
 from sklearn.model_selection import StratifiedKFold
 from sklearn.inspection import permutation_importance
 
-best_parameters = {'max_depth': 15, 'min_samples_leaf': 4, 'min_samples_split': 14, 'n_estimators': 500}
+best_parameters = {'max_depth': 9, 'min_samples_leaf': 1, 'min_samples_split': 14, 'n_estimators': 500}
 
 def evaluate_model(t, x_test, y_test, y_train, model):
     # Evaluate the model
@@ -40,7 +40,7 @@ def plot_auc(t, a_scores, a_mean):
 
 
 # Read in data set
-data = pd.read_csv('../../Files/5yr/RSFFeatureSets/Best_Features_5.csv')
+data = pd.read_csv('../../Files/5yr/RSFFeatureSets/Feature_set_5_Optimised.csv')
 data['os_event_censored_5yr'] = data['os_event_censored_5yr'].astype(bool)
 features = data.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
 time_to_event_data = data[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(index=False)
@@ -61,11 +61,6 @@ for train_index, test_index in skf.split(features, time_to_event_data['os_event_
     features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
     time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
 
-    # Feature set 4
-    # rsf_model_validate = RandomSurvivalForest(max_depth=9, min_samples_leaf=1, min_samples_split=14,
-    #                                           n_estimators=300, random_state=40)
-
-    # Feature set 6
     rsf_model_validate = RandomSurvivalForest(random_state=40, **best_parameters)
 
     # Fit Model
@@ -113,11 +108,7 @@ test_features = best_features_test_data.drop(['os_event_censored_5yr', 'os_month
 test_time_to_event_data = best_features_test_data[['os_event_censored_5yr', 'os_months_censored_5yr']].to_records(
     index=False)
 
-# Initiate model with optimal parameters. Feature set 4
-# rsf_model_test = RandomSurvivalForest(max_depth=9, min_samples_leaf=1, min_samples_split=14,
-#                                               n_estimators=300, random_state=40)
-
-# Initiate model with optimal parameters. Feature set 6
+# Initiate model with optimal parameters
 rsf_model_test = RandomSurvivalForest(random_state=40, **best_parameters)
 
 rsf_model_test.fit(features, time_to_event_data)
@@ -137,10 +128,6 @@ metrics_tables = pd.concat([df_validation_feature_set, df_test_feature_set], ign
 
 print("\n\n\tTable displaying metrics for cross validation and unseen data\n", metrics_tables)
 
-plot_auc(times, auc_test, auc_mean_test)
-
-#metrics_tables.to_csv("../../Files/tables and graphs/5yr_rsf_metrics.csv", index=False)
-
 # Further Analysis
 # Display probabilities for first 5 and last 5 entries in test data (sorted by age)
 X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
@@ -156,24 +143,23 @@ plt.grid(True)
 plt.title("Feature Set 5 Patient Survival Probabilities")
 plt.show()
 
-# print(pd.Series(rsf_model_test.predict(X_test_sel)))
-
-# Load in test data
+# # print(pd.Series(rsf_model_test.predict(X_test_sel)))
+#
+# # Load in test data
 individual_test = pd.read_csv('../../Files/5yr/Individual_test.csv')
 
 individual_test = pd.get_dummies(individual_test, drop_first=True)
 
 individual_test = individual_test[best_feature_columns]
 
-# Split labels and features
+# Remove Time to event data
 individual_test = individual_test.drop(['os_event_censored_5yr', 'os_months_censored_5yr'], axis=1)
 
-print(individual_test)
 survival_probabilities = rsf_model_test.predict_survival_function(individual_test)
 time_points = survival_probabilities[0].x
 probabilities = survival_probabilities[0].y
 time_index = np.where(time_points == 60)[0][0]
 five_year_survival_probability = probabilities[time_index]
-print(f"5-year survival probability: {five_year_survival_probability}")
+print(f"\n5-year survival probability: {five_year_survival_probability}")
 
 dump(rsf_model_test, "../../../Website/Models/5yr_model.joblib", compress=3)

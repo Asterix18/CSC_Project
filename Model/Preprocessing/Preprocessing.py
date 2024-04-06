@@ -124,8 +124,6 @@ data = tnm_fill_with_mode(data, 'tnm_stage', 'tnm.m')
 # Drop any empty chemotherapy_adjuvant rows (only 2)
 data = data.dropna(subset=['chemotherapy_adjuvant'])
 
-
-
 # Print summary and dataframe length to check there are no columns with missing values and the data frame is still a
 # suitable size
 print(data.isnull().sum())
@@ -133,11 +131,11 @@ print(len(data))
 
 # For numeric features
 numeric_stats = data.describe(include=[np.number])
-numeric_stats.to_csv('../Files/Tables and graphs/numeric_summary_statistics.csv', index=True)
+# numeric_stats.to_csv('../Files/Tables and graphs/numeric_summary_statistics.csv', index=True)
 
 # For categorical features, if you have any left as 'object' types after encoding
 categorical_stats = data.describe(include=['object'])
-categorical_stats.to_csv('../Files/Tables and graphs/categorical_summary_statistics.csv', index=True)
+# categorical_stats.to_csv('../Files/Tables and graphs/categorical_summary_statistics.csv', index=True)
 
 # Calculate data lost
 processed_data_size = len(data)
@@ -149,7 +147,7 @@ data_volume_impact_analysis = pd.DataFrame({
     'Value': [original_data_size, processed_data_size, percentage_retained, percentage_lost]
 })
 
-data_volume_impact_analysis.to_csv('../Files/Tables and graphs/data_volume_impact_analysis.csv', index=False)
+# data_volume_impact_analysis.to_csv('../Files/Tables and graphs/data_volume_impact_analysis.csv', index=False)
 
 # Censoring os at 5 years (60 months) in order to calculate 5 year survival rates later
 data['os_months_censored_5yr'] = data['os_months'].clip(upper=60)
@@ -165,11 +163,11 @@ data['rfs_event_censored_5yr'] = data.apply(lambda row: row['rfs_event'] if row[
 
 # Censoring rfs at 10 years (120 months) for calculating the 10-year survival rates
 data['rfs_months_censored_10yr'] = data['rfs_months'].clip(upper=120)
-data['rfs_event_censored_10yr'] = data.apply(lambda row: row['rfs_event'] if 60 < row['rfs_months'] <= 120 else 0, axis=1)
+data['rfs_event_censored_10yr'] = data.apply(lambda row: row['rfs_event'] if 60 < row['rfs_months'] <= 120 else 0,
+                                             axis=1)
 
 data.loc[data['rfs_event_censored_5yr'] == 0, 'rfs_months_censored_5yr'] = 0
 data.loc[data['rfs_event_censored_10yr'] == 0, 'rfs_months_censored_10yr'] = 0
-
 
 # Split data into training and testing data prior to feature selection to ensure test data is unseen by the final model
 train_data_5yr, test_data_5yr = train_test_split(data, test_size=0.15, random_state=40, stratify=data[
@@ -200,8 +198,8 @@ test_data_10yr = test_data_10yr.drop(['os_months_censored_5yr', 'os_event_censor
 train_count = sum(train_data_5yr['os_event_censored_5yr'])
 test_count = sum(test_data_5yr['os_event_censored_5yr'])
 
-percentages = [(train_count/len(train_data_5yr['os_event_censored_5yr'])) * 100,
-               (test_count/len(test_data_5yr['os_event_censored_5yr'])) * 100]
+percentages = [(train_count / len(train_data_5yr['os_event_censored_5yr'])) * 100,
+               (test_count / len(test_data_5yr['os_event_censored_5yr'])) * 100]
 labels = [f'Training Set: {int(train_count)} occurrences', f'Testing Set {int(test_count)} occurrences']
 
 plt.figure(figsize=(8, 6))
@@ -212,10 +210,8 @@ plt.ylabel('Percentage of death event occurring in data set')
 plt.savefig("5yr_event_distribution.png")
 plt.show()
 
-
 train_count = sum(train_data_10yr['os_event_censored_10yr'])
 test_count = sum(test_data_10yr['os_event_censored_10yr'])
-
 
 counts = [(train_count / len(train_data_10yr['os_event_censored_10yr'])) * 100,
           (test_count / len(test_data_10yr['os_event_censored_10yr'])) * 100]
@@ -230,4 +226,25 @@ plt.ylabel('Percentage of death event occurring in data set')
 plt.savefig("10yr_event_distribution.png")
 plt.show()
 
+# Fix for "censoring survival function is zero at one or more time points"
+data_train = pd.read_csv('../Files/5yr/Train_Preprocessed_Data.csv')
 
+# Check number of records experiencing event at exactly 60 months
+count_at_60 = data_train[(data_train['os_months_censored_5yr'] == 60) &
+                         (data_train['os_event_censored_5yr'] == 1)].shape[0]
+print("Number of records experiencing event at exactly 60 months: ", count_at_60)
+
+# Remove records experiencing event at exactly 60 months
+# data_train = data_train.drop(data_train[(data_train['os_months_censored_5yr'] == 60) &
+#                                         (data_train['os_event_censored_5yr'] == 1)].index)
+
+data_train.loc[(data_train['os_months_censored_5yr'] == 60)
+               & (data_train['os_event_censored_5yr'] == 1),'os_months_censored_5yr'] = 59.9
+
+
+# Check count again
+count_at_60 = data_train[(data_train['os_months_censored_5yr'] == 60) &
+                         (data_train['os_event_censored_5yr'] == 1)].shape[0]
+print("Number of records experiencing event at exactly 60 months: ", count_at_60)
+
+data_train.to_csv('../Files/5yr/Train_Preprocessed_Data.csv', index=False)
