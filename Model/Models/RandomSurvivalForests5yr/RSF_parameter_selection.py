@@ -83,12 +83,12 @@ individual_test_data = pd.read_csv('../../Files/5yr/Individual_test.csv')
 
 # Setup file paths
 features_file_paths = ([
-    '../../Files/5yr/RSFFeatureSets/Best_Features_2.csv', # {'max_depth': 15, 'min_samples_leaf': 2, 'min_samples_split': 10, 'n_estimators': 100}
-    '../../Files/5yr/RSFFeatureSets/Best_Features_3.csv', # {'max_depth': 9, 'min_samples_leaf': 3, 'min_samples_split': 14, 'n_estimators': 500}
-    '../../Files/5yr/RSFFeatureSets/Best_Features_4.csv', # {'max_depth': 9, 'min_samples_leaf': 1, 'min_samples_split': 14, 'n_estimators': 300}
-    '../../Files/5yr/RSFFeatureSets/Best_Features_5.csv', # {'max_depth': 15, 'min_samples_leaf': 4, 'min_samples_split': 14, 'n_estimators': 500}
-    '../../Files/5yr/RSFFeatureSets/Best_Features_6.csv', # {'max_depth': 3, 'min_samples_leaf': 3, 'min_samples_split': 2, 'n_estimators': 300}
-    '../../Files/5yr/RSFFeatureSets/Best_Features_7.csv', # {'max_depth': 9, 'min_samples_leaf': 4, 'min_samples_split': 14, 'n_estimators': 300}
+    '../../Files/5yr/RSFFeatureSets/Best_Features_2.csv',
+    '../../Files/5yr/RSFFeatureSets/Best_Features_3.csv',
+    '../../Files/5yr/RSFFeatureSets/Best_Features_4.csv',
+    '../../Files/5yr/RSFFeatureSets/Best_Features_5.csv',
+    '../../Files/5yr/RSFFeatureSets/Best_Features_6.csv',
+    '../../Files/5yr/RSFFeatureSets/Best_Features_7.csv',
 ])
 
 # Load in data sets

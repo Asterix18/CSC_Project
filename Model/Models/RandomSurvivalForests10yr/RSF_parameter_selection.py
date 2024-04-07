@@ -69,7 +69,7 @@ def parameter_selection(dataset):
 
 # Set up grid
 param_grid = {
-    'n_estimators': [100, 300, 500],
+    'n_estimators': [100, 300, 500, 700],
     'max_depth': [3, 9, 15, None],
     'min_samples_split': [2, 6, 10, 14],
     'min_samples_leaf': [1, 2, 3, 4]
@@ -81,24 +81,15 @@ individual_test_data = pd.read_csv('../../Files/10yr/Individual_test.csv')
 
 # Setup file paths
 features_file_paths = ([
-    '../../Files/10yr/RSFFeatureSets/Best_Features_2.csv', # {'max_depth': 9, 'min_samples_leaf': 1, 'min_samples_split': 6, 'n_estimators': 100}
-    '../../Files/10yr/RSFFeatureSets/Best_Features_4.csv', # {'max_depth': 3, 'min_samples_leaf': 1, 'min_samples_split': 6, 'n_estimators': 100}
-    '../../Files/10yr/RSFFeatureSets/Best_Features_5.csv', # {'max_depth': 15, 'min_samples_leaf': 4, 'min_samples_split': 10, 'n_estimators': 500}
-    '../../Files/10yr/RSFFeatureSets/Best_Features_6.csv', # {'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 6, 'n_estimators': 300}
-    '../../Files/10yr/RSFFeatureSets/Best_Features_7.csv', # {'max_depth': 15, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 300}
-    '../../Files/10yr/RSFFeatureSets/Best_Features_8.csv', # {'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 6, 'n_estimators': 500}
+    # '../../Files/10yr/RSFFeatureSets/Best_Features_1.csv',
+    # '../../Files/10yr/RSFFeatureSets/Best_Features_2.csv',
+    # '../../Files/10yr/RSFFeatureSets/Best_Features_3.csv',
+    # '../../Files/10yr/RSFFeatureSets/Best_Features_4.csv',
+    # '../../Files/10yr/RSFFeatureSets/Best_Features_7.csv',
+    # '../../Files/10yr/RSFFeatureSets/Best_Features_8.csv',
+    # '../../Files/10yr/RSFFeatureSets/Feature_set_4_optimised.csv',
+    '../../Files/10yr/RSFFeatureSets/Feature_set_6_optimised.csv',
 ])
-
-
-
-
-#     Feature Set  5-Fold C-Index  5-Fold B-Score  5-Fold AUC  5 year Survival
-# 0            2        0.787283        0.192939    0.823074         0.556014
-# 1            4        0.781532        0.189085    0.816666         0.417059
-# 2            5        0.788551        0.194991    0.795994         0.523201
-# 3            6        0.787777        0.196088    0.809464         0.568466
-# 4            7        0.780755        0.193689    0.802929         0.565905
-# 5            8        0.793759        0.186637    0.836635         0.540473
 
 
 # Load in data sets
@@ -198,12 +189,12 @@ for feature_sets in feature_dataframes:
     feature_set_metrics.append(df_current_feature_set)
 
     # Calculate average importances for feature set
-    # avg_importances = sum(importances) / len(importances)
-    # importance_df = pd.DataFrame({
-    #     'Feature': features.columns,
-    #     'Importance': avg_importances
-    # }).sort_values(by='Importance', ascending=False)
-    # print("\n", importance_df)
+    avg_importances = sum(importances) / len(importances)
+    importance_df = pd.DataFrame({
+        'Feature': features.columns,
+        'Importance': avg_importances
+    }).sort_values(by='Importance', ascending=False)
+    print("\n", importance_df)
 
     feature_set_counter += 1
 

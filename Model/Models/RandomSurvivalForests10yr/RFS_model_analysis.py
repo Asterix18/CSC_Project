@@ -8,7 +8,7 @@ from sklearn.inspection import permutation_importance
 from sklearn.model_selection import StratifiedKFold
 
 
-best_parameters = {'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 6, 'n_estimators': 500}
+best_parameters = {'max_depth': 15, 'min_samples_leaf': 1, 'min_samples_split': 14, 'n_estimators': 500}
 
 def evaluate_model(t, x_test, y_test, y_train, model):
     # Evaluate the model
@@ -37,7 +37,7 @@ def plot_auc(t, a_scores, a_mean):
 
 
 # Read in data set
-data = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_8.csv')
+data = pd.read_csv('../../Files/10yr/RSFFeatureSets/Feature_set_4_optimised.csv')
 data['os_event_censored_10yr'] = data['os_event_censored_10yr'].astype(bool)
 features = data.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
 time_to_event_data = data[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)

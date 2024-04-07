@@ -147,12 +147,12 @@ for feature_sets in feature_dataframes:
     feature_set_metrics.append(df_current_feature_set)
 
     # Calculate average importances for feature set
-    # avg_importances = sum(importances) / len(importances)
-    # importance_df = pd.DataFrame({
-    #     'Feature': features.columns,
-    #     'Importance': avg_importances
-    # }).sort_values(by='Importance', ascending=False)
-    # print("\n", importance_df)
+    avg_importances = sum(importances) / len(importances)
+    importance_df = pd.DataFrame({
+        'Feature': features.columns,
+        'Importance': avg_importances
+    }).sort_values(by='Importance', ascending=False)
+    print("\n", importance_df)
 
     # Plot AUC
     plot_auc(times, average_auc_scores, average_auc_means_score)
