@@ -1,20 +1,20 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.inspection import permutation_importance
+from lifelines import CoxPHFitter
 from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import make_pipeline
 from sksurv.linear_model import CoxPHSurvivalAnalysis
-from sksurv.ensemble import RandomSurvivalForest
 from sksurv.metrics import cumulative_dynamic_auc, brier_score
 
 
+# Function to evaluate models
 def evaluate_model(t, x_test, y_test, y_train, model):
     # Concordance Index
     c_index = model.score(x_test, y_test)
 
     # Brier Score
-    cph_probabilities = np.row_stack([fn(times) for fn in model.predict_survival_function(x_test)])
+    cph_probabilities = np.row_stack([fn(t) for fn in model.predict_survival_function(x_test)])
     b_score = brier_score(y_train, y_test, cph_probabilities, t)
 
     # AUC score
@@ -24,22 +24,13 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     return c_index, b_score[1], cph_mean_auc, cph_auc
 
 
-def plot_auc(t, a_scores, a_mean):
-    # Plot AUC
-    plt.plot(t, a_scores, "o-", label=f"RSF (mean AUC = {a_mean:.3f})")
-    plt.xlabel("Months since diagnosis")
-    plt.ylabel("time-dependent AUC")
-    plt.legend(loc="lower center")
-    plt.grid(True)
-    plt.show()
-
-
 # Read in data set
-data = pd.read_csv('../../Files/10yr/RSFFeatureSets/Best_Features_5.csv')
+data = pd.read_csv('../../../Files/10yr/RSFFeatureSets/Best_Features_2.csv')
 data['os_event_censored_10yr'] = data['os_event_censored_10yr'].astype(bool)
 features = data.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
 time_to_event_data = data[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)
 
+# Set up data stores and variables
 c_indices = []
 brier_scores = []
 auc_means_scores = []
@@ -56,8 +47,6 @@ for train_index, test_index in skf.split(features, time_to_event_data['os_event_
     features_train, features_validation = features.iloc[train_index], features.iloc[test_index]
     time_to_event_train, time_to_event_validation = time_to_event_data[train_index], time_to_event_data[test_index]
 
-    rsf_model_validate = RandomSurvivalForest(max_depth=3, max_features=None, min_samples_leaf=8, min_samples_split=2,
-                                              n_estimators=400, random_state=40)
 
     # Create and fit the Cox Proportional Hazards model
     cph = make_pipeline(CoxPHSurvivalAnalysis())
@@ -71,16 +60,18 @@ for train_index, test_index in skf.split(features, time_to_event_data['os_event_
     auc_means_scores.append(auc_mean)
     auc_scores.append(auc)
 
-    print(f"{fold_counter}\t\t{ci}\t\t{sum(bs) / len(bs)}\t\t{auc_mean}")
+    print(f"{fold_counter}\t\t{ci}\t\t{bs[1]}\t\t{auc[1]}")
 
     fold_counter = fold_counter + 1
 
+# Calculate mean metrics
 average_c_index = np.mean(c_indices)
 average_brier_scores = sum(brier_scores) / len(brier_scores)
 average_brier_mean_score = np.mean(average_brier_scores)
 average_auc_means_score = np.mean(auc_means_scores)
 average_auc_scores = sum(auc_scores) / len(auc_scores)
 
+# Create data frame to display metrics
 df_validation_feature_set = pd.DataFrame({
     'Method': ["Cross Validation"],
     'C-Index': [average_c_index],
@@ -94,11 +85,9 @@ df_validation_feature_set = pd.DataFrame({
 
 print("\n\n\tTable for cross validated metrics\n", df_validation_feature_set)
 
-plot_auc(times, average_auc_scores, average_auc_means_score)
-
 # *** Test final model against unseen data ***
 # Load in test data
-test_data = pd.read_csv('../../Files/10yr/Test_Preprocessed_Data.csv')
+test_data = pd.read_csv('../../../Files/10yr/Test_Preprocessed_Data.csv')
 test_data = pd.get_dummies(test_data, drop_first=True)
 test_data['os_event_censored_10yr'] = test_data['os_event_censored_10yr'].astype(bool)
 
@@ -115,10 +104,19 @@ test_time_to_event_data = best_features_test_data[['os_event_censored_10yr', 'os
 cph = make_pipeline(CoxPHSurvivalAnalysis())
 cph.fit(features, time_to_event_data)
 
+cph2 = CoxPHSurvivalAnalysis()
+cph2.fit(features, time_to_event_data)
+
+# Check the proportional hazards assumption for all variables
+cph_check_assumptions = CoxPHFitter()
+cph_check_assumptions.fit(data, duration_col='os_months_censored_10yr', event_col='os_event_censored_10yr')
+cph_check_assumptions.check_assumptions(data, p_value_threshold=0.05)
+
 # Evaluate model against test data
 ci_test, bs_test, auc_mean_test, auc_test = evaluate_model(times, test_features, test_time_to_event_data,
                                                            time_to_event_data, cph)
 
+# Create data frame to display metrics
 df_test_feature_set = pd.DataFrame({
     'Method': ["Unseen Data"],
     'C-Index': [ci_test],
@@ -131,26 +129,33 @@ df_test_feature_set = pd.DataFrame({
 })
 metrics_tables = pd.concat([df_validation_feature_set, df_test_feature_set], ignore_index=True)
 
-print("\n\n\tTable displaying metrics for crossvalidation and unseen data\n", metrics_tables)
-
-plot_auc(times, auc_test, auc_mean_test)
-
-metrics_tables.to_csv("../../Files/tables and graphs/10yr_rsf_metrics.csv", index=False)
+print("\n\n\tTable displaying metrics for cross validation and unseen data\n", metrics_tables)
 
 # Further Analysis
 # Display probabilities for first 5 and last 5 entries in test data (sorted by age)
 X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
 X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
 
-# survival = cph.predict_survival_function(X_test_sel, return_array=True)
-# time_points = survival.time_points
-#
-# for i, s in enumerate(survival):
-#     plt.step(time_points, s, where="post", label=str(i))
-# plt.ylabel("Survival probability")
-# plt.xlabel("Time in months")
-# plt.grid(True)
-# plt.title("Feature Set 5 Patient Survival Probabilities")
-# plt.show()
-#
-# print("\n\n\n*** Analysis Finished ***")
+survival = cph2.predict_survival_function(X_test_sel, return_array=True)
+for i, s in enumerate(survival):
+    plt.step(cph2.unique_times_, s, where="post", label=str(i))
+plt.ylabel("Survival probability")
+plt.xlabel("Time in months")
+plt.grid(True)
+plt.title("Patient Survival Probabilities")
+plt.show()
+
+
+# # Load in test data
+individual_test = pd.read_csv('../../../Files/5yr/Individual_test.csv')
+
+individual_test = pd.get_dummies(individual_test, drop_first=True)
+
+individual_test = individual_test[test_features.columns]
+
+survival_probabilities = cph2.predict_survival_function(individual_test)
+time_points = survival_probabilities[0].x
+probabilities = survival_probabilities[0].y
+time_index = np.where(time_points == 60)[0][0]
+five_year_survival_probability = probabilities[time_index]
+print(f"\n5-year survival probability: {five_year_survival_probability}")

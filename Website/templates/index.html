@@ -68,14 +68,6 @@
                 <option value="1">Yes</option>
             </select><br>
         </div>
-        <div class="form hide-input" id="relapseAfter60Container">
-            <label for="rfs_event_censored_10yr">Relapse Occurred after 60 months</label>
-            <select name="rfs_event_censored_10yr" id="rfs_event_censored_10yr" required>
-                <option value="" selected disabled>select an option</option>
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-            </select><br>
-        </div>
         <div class="form">
             <label for="sex_Male">Sex</label>
             <select name="sex_Male" id="sex_Male" required>
@@ -103,22 +95,6 @@
         <div class="form">
             <label for="kras_mutation_WT">KRAS Mutation Type</label>
             <select name="kras_mutation_WT" id="kras_mutation_WT" required>
-                <option value="" selected disabled>select an option</option>
-                <option value="True">Wild Type</option>
-                <option value="False">Mutated</option>
-            </select><br>
-        </div>
-        <div class="form">
-            <label for="braf_mutation_WT">BRAF Mutation Type</label>
-            <select name="braf_mutation_WT" id="braf_mutation_WT" required>
-                <option value="" selected disabled>select an option</option>
-                <option value="True">Wild Type</option>
-                <option value="False">Mutated</option>
-            </select><br>
-        </div>
-        <div class="form">
-            <label for="tp53_mutation_WT">TP53 Mutation Type</label>
-            <select name="tp53_mutation_WT" id="tp53_mutation_WT" required>
                 <option value="" selected disabled>select an option</option>
                 <option value="True">Wild Type</option>
                 <option value="False">Mutated</option>
@@ -154,21 +130,6 @@
         const form = document.getElementById("predictionForm");
         const loading = document.getElementById("loading");
         const results = document.getElementById("results");
-        const relapseWithin60 = document.getElementById("rfs_event_censored_5yr");
-        const relapseAfter60 = document.getElementById("rfs_event_censored_10yr");
-        const relapseAfter60Container = document.getElementById("relapseAfter60Container");
-
-        relapseWithin60.addEventListener('change', function () {
-            // If relapse occurred within 60 months hide the within 120 months option and set it to yes
-            if (this.value === "1") {
-                relapseAfter60Container.classList.add("hide-input")
-                relapseAfter60.value = "0"
-                // if relapse did not occur within 60 months give the user the option to select after 60 months
-            } else {
-                relapseAfter60Container.classList.remove("hide-input");
-                relapseAfter60.value = ""
-            }
-        });
 
         form.onsubmit = function (e) {
             e.preventDefault(); // Prevent traditional form submission

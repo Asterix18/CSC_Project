@@ -23,25 +23,25 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     c_index = model.score(x_test, y_test)
 
     # Brier Score
-    rsf_probabilities = np.row_stack([fn(t) for fn in model.predict_survival_function(x_test)])
-    b_score = brier_score(y_train, y_test, rsf_probabilities, t)
+    probabilities = np.row_stack([fn(t) for fn in model.predict_survival_function(x_test)])
+    b_score = brier_score(y_train, y_test, probabilities, t)
 
     # AUC score
     risk_scores = model.predict(x_test)
-    rsf_auc, rsf_mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, t)
+    auc, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, t)
 
-    return c_index, b_score[1], rsf_mean_auc, rsf_auc
+    return c_index, b_score[1], mean_auc, auc
 
 
 # Load data
-features_file_paths = (['../../Files/10yr/CPHFeatureSets/Best_Features_1.csv',
-                        '../../Files/10yr/CPHFeatureSets/Best_Features_2.csv',
-                        '../../Files/10yr/CPHFeatureSets/Best_Features_3.csv',
-                        '../../Files/10yr/CPHFeatureSets/Best_Features_4.csv',
-                        '../../Files/10yr/CPHFeatureSets/Best_Features_5.csv',
-                        '../../Files/10yr/CPHFeatureSets/Best_Features_6.csv',
-                        '../../Files/10yr/CPHFeatureSets/Best_Features_7.csv',
-                        '../../Files/10yr/CPHFeatureSets/Best_Features_8.csv',
+features_file_paths = (['../../../Files/10yr/RSFFeatureSets/Best_Features_1.csv',
+                        '../../../Files/10yr/RSFFeatureSets/Best_Features_2.csv',
+                        '../../../Files/10yr/RSFFeatureSets/Best_Features_3.csv',
+                        '../../../Files/10yr/RSFFeatureSets/Best_Features_4.csv',
+                        '../../../Files/10yr/RSFFeatureSets/Best_Features_5.csv',
+                        '../../../Files/10yr/RSFFeatureSets/Best_Features_6.csv',
+                        '../../../Files/10yr/RSFFeatureSets/Best_Features_7.csv',
+                        '../../../Files/10yr/RSFFeatureSets/Best_Features_8.csv',
                         ])
 
 feature_dataframes = []
@@ -54,10 +54,10 @@ for file_path in features_file_paths:
 n_splits = 5
 
 # Initialize KFold
-skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=40)
 
 # Initialize Variables
-times = (np.array([60, 119]))
+times = (np.array([119]))
 feature_set_counter = 1
 best_feature_set_c_index = 0
 best_feature_set = None
@@ -82,20 +82,16 @@ for feature_sets in feature_dataframes:
         y_training, y_validation = time_to_event_data[train_index], time_to_event_data[test_index]
 
         # Create and fit the Cox Proportional Hazards model
-        cph = make_pipeline(CoxPHSurvivalAnalysis())
-        cph.fit(x_training, y_training)
+        CPH = make_pipeline(CoxPHSurvivalAnalysis())
+        CPH.fit(x_training, y_training)
 
         # Evaluate the model on the test set
-        ci, bs, auc_mean, auc = evaluate_model(times, x_validation, y_validation, y_training, cph)
+        ci, bs, auc_mean, auc = evaluate_model(times, x_validation, y_validation, y_training, CPH)
         c_index_scores.append(ci)
         b_scores.append(bs)
         auc_means.append(auc_mean)
         aucs.append(auc)
 
-        # if aggregated_feature_importances is None:
-        #     aggregated_feature_importances = cph.params_
-        # else:
-        #     aggregated_feature_importances += cph.params_
         print(f"fold {fold_counter}: c-i: {ci.round(5)}\t\t b-s: {np.mean(bs).round(5)}\t\t auc: {auc_mean.round(5)}")
         fold_counter = fold_counter + 1
 
@@ -113,9 +109,6 @@ for feature_sets in feature_dataframes:
     })
     feature_set_metrics.append(df_current_feature_set)
 
-    # mean_feature_importances = aggregated_feature_importances / n_splits
-    # print(f"Feature Importances: {mean_feature_importances}")
-
     if average_c_index > best_feature_set_c_index:
         best_feature_set_c_index = average_c_index
         best_feature_set = feature_set_counter
@@ -130,4 +123,3 @@ df_summary = pd.concat(feature_set_metrics, ignore_index=True)
 print("\n\n", df_summary)
 
 print(f"\nBest Feature set: {best_feature_set}\nWith a average concordance index of: {best_feature_set_c_index}")
-

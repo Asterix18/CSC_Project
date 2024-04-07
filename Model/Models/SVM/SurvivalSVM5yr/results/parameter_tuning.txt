@@ -1,0 +1,21 @@
+
+Feature set 1:
+	Optimal alpha: {'alpha': 0.000244140625}
+Feature set 2:
+	Optimal alpha: {'alpha': 0.0009765625}
+Feature set 3:
+	Optimal alpha: {'alpha': 0.000244140625}
+Feature set 4:
+	Optimal alpha: {'alpha': 0.000244140625}
+Feature set 5:
+	Optimal alpha: {'alpha': 0.000244140625}
+Feature set 6:
+	Optimal alpha: {'alpha': 0.000244140625}
+Feature set 7:
+	Optimal alpha: {'alpha': 0.000244140625}
+Feature set 8:
+	Optimal alpha: {'alpha': 0.000244140625}
+Feature set 9:
+	Optimal alpha: {'alpha': 0.000244140625}
+
+Process finished with exit code 0

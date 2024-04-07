@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 app.secret_key = "SECRET"
 
+# Set up logins
 logins = {"Mike": "password1", "John": "password2", "admin": "admin"}
 
 # Load machine learning model
@@ -18,14 +19,14 @@ ten_year = load('Models/10yr_model.joblib')
 
 # Define the feature names expected by model
 five_year_feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'mmr_status',
-                           'rfs_event_censored_5yr', 'sex_Male' 'tumour_location_proximal', 'chemotherapy_adjuvant_Y',
+                           'rfs_event_censored_5yr', 'sex_Male', 'tumour_location_proximal', 'chemotherapy_adjuvant_Y',
                            'kras_mutation_WT']
 
-ten_year_feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'CMS',
-                          'sex_Male', 'tumour_location_proximal', 'chemotherapy_adjuvant_Y',
-                          'tp53_mutation_WT', 'braf_mutation_WT', 'rfs_event_censored_5yr', 'rfs_event_censored_10yr']
+ten_year_feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'chemotherapy_adjuvant_Y', 'CMS',
+                          'rfs_event_censored_5yr', 'kras_mutation_WT']
 
 
+# Function to delete cache to avoid unauthorised access
 def nocache(view):
     @wraps(view)
     def no_cache(*args, **kwargs):
@@ -38,6 +39,7 @@ def nocache(view):
     return no_cache
 
 
+# Function to check logged in
 def logged_in():
     return session.get('logged_in')
 
@@ -47,11 +49,13 @@ def home():
     return redirect(url_for('login'))
 
 
+# Reroute unauthenticated users
 @app.route('/unauthenticated')
 def unauthenticated():
     return render_template('unauthenticated.html')
 
 
+# Route use to login page
 @app.route('/login', methods=['GET', 'POST'])
 @nocache
 def login():
@@ -68,6 +72,7 @@ def login():
     return render_template('login.html')
 
 
+# Log out user
 @app.route('/logout')
 def logout():
     if not logged_in():
@@ -78,16 +83,18 @@ def logout():
     return redirect(url_for('unauthenticated'))
 
 
+# Load form
 @app.route('/form')
 @nocache
 def form():
     if not logged_in():
         flash('Please login to continue.')
         return redirect(url_for('unauthenticated'))
-    # This could be the page with the form if separate, or just redirect to home/login
+    # Load index html
     return render_template('index.html')
 
 
+# Calculate probabilities
 @app.route('/predict', methods=['POST'])
 @nocache
 def predict():
@@ -102,15 +109,11 @@ def predict():
         dob = datetime.strptime(str(form_data['age']), "%Y-%m-%d")
         tnm_stage = int(form_data['tnm_stage'])
         mmr_status = int(form_data['mmr_status'])
-        cimp_status = int(form_data['cimp_status'])
         rfs_event_censored_5yr = int(form_data['rfs_event_censored_5yr'])
-        rfs_event_censored_10yr = int(form_data['rfs_event_censored_10yr'])
         sex_Male = form_data['sex_Male'] == 'True'
         tumour_location_proximal = form_data['tumour_location_proximal'] == 'True'
         chemotherapy_adjuvant_Y = form_data['chemotherapy_adjuvant_Y'] == 'True'
         kras_mutation_WT = form_data['kras_mutation_WT'] == 'True'
-        braf_mutation_WT = form_data['braf_mutation_WT'] == 'True'
-        tp53_mutation_WT = form_data['tp53_mutation_WT'] == 'True'
         cms = int(form_data['cms'])
 
         # Convert dob to age here
@@ -137,9 +140,7 @@ def predict():
         five_year_probability = five_year_probabilities[np.where(five_year_time_points == 60)[0][0]]
 
         # Ten Year Calculations
-        ten_year_input_data = [[age, tnm_stage, cms, sex_Male, tumour_location_proximal,
-                                chemotherapy_adjuvant_Y, tp53_mutation_WT, braf_mutation_WT, rfs_event_censored_5yr,
-                                rfs_event_censored_10yr]]
+        ten_year_input_data = [[age, tnm_stage, chemotherapy_adjuvant_Y, cms, rfs_event_censored_5yr, kras_mutation_WT]]
 
         ten_year_input_df = pd.DataFrame(ten_year_input_data, columns=ten_year_feature_names)
 
@@ -157,6 +158,7 @@ def predict():
         return jsonify(error="An error occurred during prediction. Please try again."), 400
 
 
+# Route to about page
 @app.route('/about')
 @nocache
 def about():
@@ -166,6 +168,7 @@ def about():
     return render_template("about.html")
 
 
+# Route to saved predictions page
 @app.route('/savedPredictions')
 def savedPredictions():
     return render_template('savedPredictions.html')

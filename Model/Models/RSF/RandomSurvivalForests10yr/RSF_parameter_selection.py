@@ -1,34 +1,14 @@
+
+from sklearn.model_selection import GridSearchCV
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.model_selection import StratifiedKFold
 from sklearn.inspection import permutation_importance
 from sksurv.metrics import cumulative_dynamic_auc, brier_score
 
-# Load in test data
-test_data = pd.read_csv('../../Files/10yr/Individual_test.csv')
 
-# Setup file paths
-features_file_paths = (['../../Files/10yr/RSFFeatureSets/Best_Features_1.csv',
-                        '../../Files/10yr/RSFFeatureSets/Best_Features_2.csv',
-                        '../../Files/10yr/RSFFeatureSets/Best_Features_3.csv',
-                        '../../Files/10yr/RSFFeatureSets/Best_Features_4.csv',
-                        '../../Files/10yr/RSFFeatureSets/Best_Features_5.csv',
-                        '../../Files/10yr/RSFFeatureSets/Best_Features_6.csv',
-                        '../../Files/10yr/RSFFeatureSets/Best_Features_7.csv',
-                        '../../Files/10yr/RSFFeatureSets/Best_Features_8.csv',
-                        ])
-
-# Load in data sets
-feature_dataframes = []
-for file_path in features_file_paths:
-    feature_dataframe = pd.read_csv(file_path)
-    feature_dataframe['os_event_censored_10yr'] = feature_dataframe['os_event_censored_10yr'].astype(bool)
-    feature_dataframes.append(feature_dataframe)
-
-
+# Function to evaluate models
 def evaluate_model(t, x_test, y_test, y_train, model):
     # Evaluate the model
     # Concordance Index
@@ -45,19 +25,84 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     return c_index, b_score[1], rsf_mean_auc, rsf_auc
 
 
-def plot_auc(t, a_scores, a_mean):
-    # Plot AUC
-    plt.plot(t, a_scores, "o-", label=f"RSF (mean AUC = {a_mean:.3f})")
-    plt.xlabel("Months since diagnosis")
-    plt.ylabel("time-dependent AUC")
-    plt.legend(loc="lower center")
-    plt.grid(True)
-    plt.show()
-
-
+# Function to calculate importances
 def get_importances(model, x_test, y_test):
     result = permutation_importance(model, x_test, y_test, n_repeats=30, random_state=42)
     return result.importances_mean
+
+
+# Function to split data sets
+def split_data(data_set):
+    x = data_set.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
+    y = data_set[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)
+
+    return x, y
+
+
+# Custom scoring function for grid search
+def score_model(model, X, y):
+    t = np.array([119])
+
+    prediction = model.predict(X)
+
+    c_index = model.score(X, y)
+
+    # Brier Score
+    rsf_probabilities = np.row_stack([fn(t) for fn in model.predict_survival_function(X)])
+    b_score = brier_score(y, y, rsf_probabilities, t)
+
+    score = c_index - (b_score[1][0])
+
+    return score
+
+
+# Function to carry out parameter selection
+def parameter_selection(dataset):
+    feature_set, event_set = split_data(dataset)
+    # Create RSF model instance
+    rsf = RandomSurvivalForest(random_state=40)
+
+    # Create GridSearchCV instance
+    grid_search = GridSearchCV(estimator=rsf, param_grid=param_grid, cv=5, n_jobs=-1, scoring=score_model)
+
+    # Fit the grid search to the data
+    grid_search.fit(feature_set, event_set)
+
+    # Print the best parameters
+    return grid_search.best_params_, grid_search.best_score_
+
+
+# Set up grid
+param_grid = {
+    'n_estimators': [100, 300, 500, 700],
+    'max_depth': [3, 9, 15, None],
+    'min_samples_split': [2, 6, 10, 14],
+    'min_samples_leaf': [1, 2, 3, 4]
+
+}
+
+# Load in test data
+individual_test_data = pd.read_csv('../../../Files/10yr/Individual_test.csv')
+
+# Setup file paths
+features_file_paths = ([
+    '../../../Files/10yr/RSFFeatureSets/Best_Features_1.csv',
+    '../../../Files/10yr/RSFFeatureSets/Best_Features_2.csv',
+    '../../../Files/10yr/RSFFeatureSets/Best_Features_3.csv',
+    '../../../Files/10yr/RSFFeatureSets/Best_Features_4.csv',
+    '../../../Files/10yr/RSFFeatureSets/Best_Features_7.csv',
+    '../../../Files/10yr/RSFFeatureSets/Best_Features_8.csv',
+    '../../../Files/10yr/RSFFeatureSets/Feature_set_4_optimised.csv',
+    '../../../Files/10yr/RSFFeatureSets/Feature_set_6_optimised.csv',
+])
+
+
+# Load in data sets
+feature_dataframes = []
+for file_path in features_file_paths:
+    feature_dataframe = pd.read_csv(file_path)
+    feature_dataframe['os_event_censored_10yr'] = feature_dataframe['os_event_censored_10yr'].astype(bool)
+    feature_dataframes.append(feature_dataframe)
 
 
 # K-Fold setup
@@ -85,9 +130,11 @@ for feature_sets in feature_dataframes:
     fold_counter = 1
     av_5yr_surv = 0
 
+    best_parameters, best_score = parameter_selection(feature_sets)
+    print(f"Best parameters: {best_parameters}")
+
     # Split data into features and time to event data
-    features = feature_sets.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
-    time_to_event_data = feature_sets[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)
+    features, time_to_event_data = split_data(feature_sets)
 
     print(f"Fold\tC-Index\t\t\t\t\tBrier Score\t\t\t\tAUC")
 
@@ -98,7 +145,7 @@ for feature_sets in feature_dataframes:
 
         # Train and Evaluate the model
         # Set base parameters
-        rsf_validation = RandomSurvivalForest(min_samples_split=10, n_estimators=100, random_state=40)
+        rsf_validation = RandomSurvivalForest(random_state=40, **best_parameters)
 
         # Fit Model
         rsf_validation.fit(features_train, time_to_event_train)
@@ -118,7 +165,7 @@ for feature_sets in feature_dataframes:
         importances.append(get_importances(rsf_validation, features_validation, time_to_event_validation))
 
         # Check 5 year survival rates for individual patient to attempt to align 5 and 10 year models
-        individual_test = test_data[features.columns]
+        individual_test = individual_test_data[features.columns]
 
         survival_probabilities = rsf_validation.predict_survival_function(individual_test)
         time_points = survival_probabilities[0].x
@@ -154,9 +201,6 @@ for feature_sets in feature_dataframes:
     }).sort_values(by='Importance', ascending=False)
     print("\n", importance_df)
 
-    # Plot AUC
-    plot_auc(times, average_auc_scores, average_auc_means_score)
-
     feature_set_counter += 1
 
 # Concatenate all DataFrames in the list into a single DataFrame
@@ -166,3 +210,4 @@ df_summary = pd.concat(feature_set_metrics, ignore_index=True)
 print("\n\n", df_summary)
 
 print("\n\n\n*** Analysis Finished ***")
+
