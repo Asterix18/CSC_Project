@@ -11,12 +11,13 @@ html, body {
     background-color: #ffffff;
     color: #3D84A8;
     padding: 10px 20px;
+    margin-top: 5px;
+    margin-left: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: auto;
     height: 100px;
-
 }
 
 .logo-container img {
@@ -117,7 +118,7 @@ button{
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
     width: 150px;
     height: 60px;
 }
@@ -131,7 +132,6 @@ button{
 .predict-survival-btn {
     background-color: #0056b3;
     color: white;
-    font-size: 14px;
     margin: 0 5px;
     outline: 1px solid #0056b3;
 }
@@ -144,7 +144,6 @@ button{
     background-color: #ffffff;
     color: #000000;
     margin: 0 5px;
-    font-size: 14px;
     outline: 1px solid #000000;
 }
 

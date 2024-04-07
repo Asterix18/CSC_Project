@@ -17,25 +17,25 @@ five_year = load('Models/5yr_model.joblib')
 ten_year = load('Models/10yr_model.joblib')
 
 # Define the feature names expected by model
-five_year_feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'mmr_status', 'cimp_status',
-                           'rfs_event_censored_5yr', 'tumour_location_proximal', 'chemotherapy_adjuvant_Y',
-                           'kras_mutation_WT', 'braf_mutation_WT']
+five_year_feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'mmr_status',
+                           'rfs_event_censored_5yr', 'sex_Male' 'tumour_location_proximal', 'chemotherapy_adjuvant_Y',
+                           'kras_mutation_WT']
 
 ten_year_feature_names = ['age_at_diagnosis_in_years', 'tnm_stage', 'CMS',
                           'sex_Male', 'tumour_location_proximal', 'chemotherapy_adjuvant_Y',
                           'tp53_mutation_WT', 'braf_mutation_WT', 'rfs_event_censored_5yr', 'rfs_event_censored_10yr']
 
 
-# def nocache(view):
-#     @wraps(view)
-#     def no_cache(*args, **kwargs):
-#         response = make_response(view(*args, **kwargs))
-#         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-#         response.headers['Pragma'] = 'no-cache'
-#         response.headers['Expires'] = '-1'
-#         return response
-#
-#     return no_cache
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        return response
+
+    return no_cache
 
 
 def logged_in():
@@ -53,7 +53,7 @@ def unauthenticated():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-# @nocache
+@nocache
 def login():
     if logged_in():
         return redirect(url_for('form'))
@@ -79,7 +79,7 @@ def logout():
 
 
 @app.route('/form')
-# @nocache
+@nocache
 def form():
     if not logged_in():
         flash('Please login to continue.')
@@ -89,7 +89,7 @@ def form():
 
 
 @app.route('/predict', methods=['POST'])
-# @nocache
+@nocache
 def predict():
     if not logged_in():
         flash('Please login to continue.')
@@ -122,14 +122,19 @@ def predict():
         age = age_difference.years
 
         # Five Year Calculations
-        five_year_input_data = [[age, tnm_stage, mmr_status, cimp_status, rfs_event_censored_5yr, sex_Male,
-                                 tumour_location_proximal, chemotherapy_adjuvant_Y, kras_mutation_WT, braf_mutation_WT]]
+        five_year_input_data = [[age, tnm_stage, mmr_status, rfs_event_censored_5yr, sex_Male,
+                                 tumour_location_proximal, chemotherapy_adjuvant_Y, kras_mutation_WT]]
 
         five_year_input_df = pd.DataFrame(five_year_input_data, columns=five_year_feature_names)
 
-        survival_probabilities = five_year.predict_survival_function(five_year_input_df)[0]
-        five_year_time_points = survival_probabilities.x
-        five_year_probabilities = survival_probabilities.y
+        # Create 5 year survival function
+        five_year_survival_probabilities = five_year.predict_survival_function(five_year_input_df)[0]
+        five_year_time_points = five_year_survival_probabilities.x
+        five_year_probabilities = five_year_survival_probabilities.y
+
+        # Extract 1 and 5 year probabilities
+        one_year_probability = five_year_probabilities[np.where(five_year_time_points == 12)[0][0]]
+        five_year_probability = five_year_probabilities[np.where(five_year_time_points == 60)[0][0]]
 
         # Ten Year Calculations
         ten_year_input_data = [[age, tnm_stage, cms, sex_Male, tumour_location_proximal,
@@ -138,13 +143,11 @@ def predict():
 
         ten_year_input_df = pd.DataFrame(ten_year_input_data, columns=ten_year_feature_names)
 
-        survival_probabilities = ten_year.predict_survival_function(ten_year_input_df)[0]
-        ten_year_time_points = survival_probabilities.x
-        ten_year_probabilities = survival_probabilities.y
+        ten_year_survival_probabilities = ten_year.predict_survival_function(ten_year_input_df)[0]
+        ten_year_time_points = ten_year_survival_probabilities.x
+        ten_year_probabilities = ten_year_survival_probabilities.y
 
-        # Extract the survival probabilities at specific time points
-        one_year_probability = five_year_probabilities[np.where(five_year_time_points == 12)[0][0]]
-        five_year_probability = five_year_probabilities[np.where(five_year_time_points == 60)[0][0]]
+        # Extract 10 year probability
         ten_year_probability = ten_year_probabilities[np.where(ten_year_time_points == 120)[0][0]]
 
         return jsonify(one_year=one_year_probability, five_year=five_year_probability, ten_year=ten_year_probability,
@@ -155,7 +158,7 @@ def predict():
 
 
 @app.route('/about')
-# @nocache
+@nocache
 def about():
     if not logged_in():
         flash('Please login to continue.')
