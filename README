@@ -1,7 +1,10 @@
 To update the environment.yml delete the current one and run:
-conda env create -f environment.yml
+conda env export > environment.yml
 
 To set up the environment run:
 conda env create -f environment.yml
 
-To run the webpage run
+To run the pytests and generate a coverage report cd into the website folder and run
+1. coverage run --source=Website.app -m pytest
+2. coverage html
+
