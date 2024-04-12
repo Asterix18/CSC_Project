@@ -91,32 +91,31 @@ Fold	C-Index					Brier Score				AUC
 1                  tnm_stage    0.003903
 3                        CMS    0.003899
 
-Feature set 5
-Best parameters: {'max_depth': 15, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 300}
+Feature set 6
+Best parameters: {'max_depth': 15, 'min_samples_leaf': 4, 'min_samples_split': 2, 'n_estimators': 100}
 Fold	C-Index					Brier Score				AUC
-1		0.7943706020328382		0.15474802009527572		0.8635914801782943
-2		0.7530762920426579		0.21456336529784514		0.7700495970644602
-3		0.7323481116584565		0.21714102920145328		0.743168388573159
-4		0.7805507745266781		0.2401338530540453		0.7764842634603001
-5		0.8434303697875688		0.14185765823904423		0.8613501125181497
+1		0.8068803752931978		0.1586079706670752		0.8815098317953872
+2		0.7383100902379		0.2036550681627585		0.7342006587979328
+3		0.7344006568144499		0.2303337045743689		0.7364629879735045
+4		0.7779690189328744		0.23048738258596058		0.7952091972362929
+5		0.8363493312352478		0.14058565530482403		0.8108497529948426
 
                        Feature  Importance
-12     rfs_event_censored_5yr    0.209868
-0   age_at_diagnosis_in_years    0.056619
-7    tumour_location_proximal    0.004965
-8     chemotherapy_adjuvant_Y    0.004393
-9            tp53_mutation_WT    0.002832
-10           kras_mutation_WT    0.000850
-13    rfs_event_censored_10yr    0.000029
-4                  cin_status   -0.000349
-1                   tnm_stage   -0.000520
-6                    sex_Male   -0.003018
-5                         CMS   -0.003350
-2                  mmr_status   -0.004982
-11           braf_mutation_WT   -0.005869
-3                 cimp_status   -0.007091
+10     rfs_event_censored_5yr    0.197312
+0   age_at_diagnosis_in_years    0.059307
+8            kras_mutation_WT    0.005727
+1                   tnm_stage    0.003929
+6     chemotherapy_adjuvant_Y    0.001967
+7            tp53_mutation_WT    0.000794
+11    rfs_event_censored_10yr    0.000000
+5                    sex_Male   -0.000476
+2                  mmr_status   -0.001708
+9            braf_mutation_WT   -0.002652
+4                         CMS   -0.006074
+3                 cimp_status   -0.006744
 
-Feature set 6
+
+Feature set 8
 Best parameters: {'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 6, 'n_estimators': 500}
 Fold	C-Index					Brier Score				AUC
 1		0.8037529319781079		0.14229848199845077		0.8801273601932847
@@ -168,8 +167,8 @@ Fold	C-Index					Brier Score				AUC
 1            2        0.793543        0.190672    0.823877         0.432737
 2            3        0.786963        0.185994    0.824219         0.545344
 3            4        0.796082        0.186353    0.804517         0.489979
-4            5        0.780755        0.193689    0.802929         0.565905
-5            6        0.793759        0.186637    0.836635         0.540473
+4            6        0.778782        0.192734    0.791646         0.507422
+5            8        0.793759        0.186637    0.836635         0.540473
 1         4opt        0.800839        0.189992    0.808950         0.477395
 0         6opt        0.783309         0.19382    0.791225         0.458452
 

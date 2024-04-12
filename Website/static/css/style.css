@@ -11,8 +11,8 @@ html, body {
     background-color: #ffffff;
     color: #3D84A8;
     padding: 10px 20px;
-    margin-top: 5px;
-    margin-left: 5px;
+    margin-top: 10px;
+    margin-left: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -21,6 +21,7 @@ html, body {
 }
 
 .logo-container img {
+    margin-top: 20px;
     height: 14vh;
     width: auto;
 }

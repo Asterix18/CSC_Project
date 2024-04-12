@@ -483,7 +483,7 @@ results = logrank_test(braf_wild_type['os_months_censored_10yr'], braf_mutated['
 # Print the results
 print('\n\nBRAF Mutation p-value:', results.p_value)
 
-# LogRank test - BRAF Mutation
+# LogRank test - KRAS Mutation
 results = logrank_test(kras_wild_type['os_months_censored_10yr'], kras_mutated['os_months_censored_10yr'],
                        event_observed_A=kras_wild_type['os_event_censored_10yr'],
                        event_observed_B=kras_mutated['os_event_censored_10yr'])

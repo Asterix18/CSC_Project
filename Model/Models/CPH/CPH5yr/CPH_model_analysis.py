@@ -37,7 +37,7 @@ c_indices = []
 brier_scores = []
 auc_means_scores = []
 auc_scores = []
-times = np.array([59.9])
+times = np.array([59])
 fold_counter = 1
 
 # K-Fold setup
@@ -130,7 +130,7 @@ print("\n\n\tTable displaying metrics for crossvalidation and unseen data\n", me
 X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
 X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
 
-survival = cph2.predict_survival_function(X_test_sel, return_array=True)
+survival = cph2.predict_survival_function(X_test_sorted, return_array=True)
 for i, s in enumerate(survival):
     plt.step(cph2.unique_times_, s, where="post", label=str(i))
 plt.ylabel("Survival probability")
@@ -139,6 +139,9 @@ plt.grid(True)
 plt.title("Patient Survival Probabilities")
 plt.show()
 
+
+plt.ylim(0, 1)
+plt.show()
 
 # # Load in test data
 individual_test = pd.read_csv('../../../Files/5yr/Individual_test.csv')
@@ -154,5 +157,6 @@ survival_probabilities = cph2.predict_survival_function(individual_test)
 time_points = survival_probabilities[0].x
 probabilities = survival_probabilities[0].y
 time_index = np.where(time_points == 60)[0][0]
+print(time_index)
 five_year_survival_probability = probabilities[time_index]
 print(f"\n5-year survival probability: {five_year_survival_probability}")

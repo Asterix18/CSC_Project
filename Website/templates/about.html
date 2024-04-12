@@ -25,7 +25,14 @@
     <p>
         Predict Colorectal Cancer utilises the capabilities of two state-of-the-art machine learning models designed for
         survival analysis (Random Survival Forests) in order to return survival probabilities. Below we outline the key
-        metrics of our model to ensure transparency and build trust in this WebApp.
+        metrics of our model to ensure transparency and build trust.
+    </p>
+    <h2 style="color: #3D84A8">Model Training Data</h2>
+    <p>
+        The data set used for training the model was initially collected for the Cartes d’Identité des Tumeurs program
+        from the French Ligue Nationale Contre le Cancer. 386 of the records were used to train the model and the other
+        69 records were used to test performance. More information on the data used can be found <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE39582">
+        here<a>.
     </p>
     <h2 style="color: #3D84A8">Model Metrics</h2>
     <p>
@@ -34,7 +41,7 @@
         suggests performance similar to random chance.
     </p>
     <p>
-        <b>AverageAUC (5-year = 0.91, 10-year = 0.84):</b> This value represents the model's ability to distinguish
+        <b>Average AUC (5-year = 0.91, 10-year = 0.84):</b> This value represents the model's ability to distinguish
         between different survival outcomes over a 10-year period. An AUC closer to 1 indicates a strong ability to
         differentiate between patients who will experience an event and those who will not within this timeframe.
     </p>

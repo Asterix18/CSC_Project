@@ -5,7 +5,8 @@ from sksurv.metrics import cumulative_dynamic_auc, brier_score
 from sksurv.ensemble import RandomSurvivalForest
 from sklearn.model_selection import StratifiedKFold
 
-best_parameters = {'max_depth': 9, 'min_samples_leaf': 1, 'min_samples_split': 14, 'n_estimators': 500}
+best_parameters = {'max_depth': 9, 'min_samples_leaf': 1, 'min_samples_split': 14, 'n_estimators': 500,
+                   "max_features": "sqrt", "bootstrap": True}
 
 
 # Function to evaluate model
@@ -27,6 +28,20 @@ def evaluate_model(t, x_test, y_test, y_train, model):
         rsf_mean_auc, rsf_auc = 0, 0
 
     return c_index, b_score[1], rsf_mean_auc, rsf_auc
+
+
+# Function to plot variance across folds
+def plot_variance():
+    plt.figure(figsize=(10, 6))
+    folds = range(1,6)
+    plt.plot(folds, c_indices, color='blue', label='C-Index')
+    plt.plot(folds, brier_scores, color='red', label='Brier Score')
+    plt.plot(folds, auc_means_scores, color='green', label='AUC')
+    plt.title('Model Performance Metrics Across Folds')
+    plt.xlabel('Fold')
+    plt.ylabel('Metric Value')
+    plt.legend()
+    plt.show()
 
 # Read in data set
 data = pd.read_csv('../../../Files/5yr/RSFFeatureSets/Feature_set_5_Optimised.csv')
@@ -82,6 +97,9 @@ df_validation_feature_set = pd.DataFrame({
     'Average AUC': [average_auc_means_score]
 })
 
+# Plot the variance across folds
+plot_variance()
+
 # *** Test final model against unseen data ***
 # Load in test data
 test_data = pd.read_csv('../../../Files/5yr/Test_Preprocessed_Data.csv')
@@ -119,11 +137,8 @@ metrics_tables = pd.concat([df_validation_feature_set, df_test_feature_set], ign
 print("\n\n\tTable displaying metrics for cross validation and unseen data\n", metrics_tables)
 
 # Further Analysis
-# Display probabilities for first 5 and last 5 entries in test data (sorted by age)
-X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
-X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
-
-survival = rsf_model_test.predict_survival_function(X_test_sel, return_array=True)
+# Display probabilities for all patients in the test set
+survival = rsf_model_test.predict_survival_function(test_features, return_array=True)
 
 for i, s in enumerate(survival):
     plt.step(rsf_model_test.unique_times_, s, where="post", label=str(i))

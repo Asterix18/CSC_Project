@@ -51,7 +51,7 @@ def evaluate_model(t, x_test, y_test, y_train, model):
 
 # Function to return mean importance for features
 def get_importances(model, x_test, y_test):
-    result = permutation_importance(model, x_test, y_test, n_repeats=30, random_state=42)
+    result = permutation_importance(model, x_test, y_test, n_repeats=30, random_state=40)
     return result.importances_mean
 
 

@@ -34,7 +34,7 @@
         </div>
         <div class="form">
             <label for="age">Date of Birth</label>
-            <input type="date" id="age" name="age" min="1924-01-01" max="2004-01-01">
+            <input type="date" id="age" name="age" min="1924-01-01" max="1994-01-01">
         </div>
         <div class="form">
             <label for="tnm_stage">TNM Stage</label>
@@ -50,14 +50,6 @@
                 <option value="" selected disabled>select an option</option>
                 <option value="0">pMMR</option>
                 <option value="1">dMMR</option>
-            </select><br>
-        </div>
-        <div class="form">
-            <label for="cimp_status">CIMP status</label>
-            <select name="cimp_status" id="cimp_status" required>
-                <option value="" selected disabled>select an option</option>
-                <option value="0">-</option>
-                <option value="1">+</option>
             </select><br>
         </div>
         <div class="form">
@@ -168,7 +160,7 @@
                             <button class="predict-survival-btn"> Save </button>
                         </div>`;
                     results.style.display = 'block'; // Display the results inside the results div
-                }, 2000); // 2 seconds delay before showing the results
+                }, 1000);
             })
                 .catch(error => {
                     console.error('Error:', error);

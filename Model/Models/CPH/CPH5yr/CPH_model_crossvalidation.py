@@ -33,7 +33,6 @@ features_file_paths = (['../../../Files/5yr/RSFFeatureSets/Best_Features_1.csv',
                         '../../../Files/5yr/RSFFeatureSets/Best_Features_6.csv',
                         '../../../Files/5yr/RSFFeatureSets/Best_Features_7.csv',
                         '../../../Files/5yr/RSFFeatureSets/Best_Features_8.csv',
-                        '../../../Files/5yr/RSFFeatureSets/Feature_set_5_Optimised.csv',
                         ])
 
 feature_dataframes = []

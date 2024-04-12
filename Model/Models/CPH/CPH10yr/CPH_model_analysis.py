@@ -25,7 +25,7 @@ def evaluate_model(t, x_test, y_test, y_train, model):
 
 
 # Read in data set
-data = pd.read_csv('../../../Files/10yr/RSFFeatureSets/Best_Features_2.csv')
+data = pd.read_csv('../../../Files/10yr/RSFFeatureSets/Best_Features_3.csv')
 data['os_event_censored_10yr'] = data['os_event_censored_10yr'].astype(bool)
 features = data.drop(['os_event_censored_10yr', 'os_months_censored_10yr'], axis=1)
 time_to_event_data = data[['os_event_censored_10yr', 'os_months_censored_10yr']].to_records(index=False)
@@ -132,11 +132,7 @@ metrics_tables = pd.concat([df_validation_feature_set, df_test_feature_set], ign
 print("\n\n\tTable displaying metrics for cross validation and unseen data\n", metrics_tables)
 
 # Further Analysis
-# Display probabilities for first 5 and last 5 entries in test data (sorted by age)
-X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
-X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
-
-survival = cph2.predict_survival_function(X_test_sel, return_array=True)
+survival = cph2.predict_survival_function(test_features, return_array=True)
 for i, s in enumerate(survival):
     plt.step(cph2.unique_times_, s, where="post", label=str(i))
 plt.ylabel("Survival probability")

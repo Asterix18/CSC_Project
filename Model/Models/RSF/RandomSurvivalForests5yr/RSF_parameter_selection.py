@@ -30,7 +30,7 @@ def evaluate_model(t, x_test, y_test, y_train, model):
 
 # Function to check importances
 def get_importances(model, x_test, y_test):
-    result = permutation_importance(model, x_test, y_test, n_repeats=30, random_state=42)
+    result = permutation_importance(model, x_test, y_test, n_repeats=30, random_state=40)
     return result.importances_mean
 
 
@@ -80,7 +80,7 @@ param_grid = {
     'n_estimators': [100, 300, 500, 700],
     'max_depth': [3, 9, 15, None],
     'min_samples_split': [2, 6, 10, 14],
-    'min_samples_leaf': [1, 2, 3, 4]
+    'min_samples_leaf': [1, 2, 3, 4],
 }
 
 # Load in test data

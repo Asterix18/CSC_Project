@@ -27,6 +27,20 @@ def evaluate_model(t, x_test, y_test, y_train, model):
     return c_index, b_score[1], rsf_mean_auc, rsf_auc
 
 
+# Function to plot variance across folds
+def plot_variance():
+    plt.figure(figsize=(10, 6))
+    folds = range(1,6)
+    plt.plot(folds, c_indices, color='blue', label='C-Index')
+    plt.plot(folds, brier_scores_10yr, color='red', label='Brier Score')
+    plt.plot(folds, auc_scores_10yr, color='green', label='AUC')
+    plt.title('Model Performance Metrics Across Folds')
+    plt.xlabel('Fold')
+    plt.ylabel('Metric Value')
+    plt.legend()
+    plt.show()
+
+
 # Read in data set
 data = pd.read_csv('../../../Files/10yr/RSFFeatureSets/Feature_set_4_optimised.csv')
 data['os_event_censored_10yr'] = data['os_event_censored_10yr'].astype(bool)
@@ -74,6 +88,7 @@ average_brier_scores = sum(brier_scores) / len(brier_scores)
 average_brier_mean_score = np.mean(brier_scores)
 average_auc_means_score = np.mean(auc_means_scores)
 average_auc_scores = sum(auc_scores) / len(auc_scores)
+
 
 # Create data frame for displaying metrics
 df_validation_feature_set = pd.DataFrame({
@@ -123,13 +138,13 @@ metrics_tables = pd.concat([df_validation_feature_set, df_test_feature_set], ign
 
 print("\n\nTable displaying metrics for cross validation and unseen data\n", metrics_tables)
 
+brier_scores_10yr = [score[1] for score in brier_scores]
+auc_scores_10yr = [score[1] for score in auc_scores]
+plot_variance()
 
 # Further Analysis
-# Display probabilities for first 5 and last 5 entries in test data (sorted by age)
-X_test_sorted = test_features.sort_values(by=["age_at_diagnosis_in_years"])
-X_test_sel = pd.concat((X_test_sorted.head(5), X_test_sorted.tail(5)))
-
-survival = rsf_model_test.predict_survival_function(X_test_sel, return_array=True)
+# Display probabilities for all features in test set
+survival = rsf_model_test.predict_survival_function(test_features, return_array=True)
 
 for i, s in enumerate(survival):
     plt.step(rsf_model_test.unique_times_, s, where="post", label=str(i))

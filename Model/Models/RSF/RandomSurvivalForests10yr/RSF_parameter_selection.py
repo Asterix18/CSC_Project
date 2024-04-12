@@ -27,7 +27,7 @@ def evaluate_model(t, x_test, y_test, y_train, model):
 
 # Function to calculate importances
 def get_importances(model, x_test, y_test):
-    result = permutation_importance(model, x_test, y_test, n_repeats=30, random_state=42)
+    result = permutation_importance(model, x_test, y_test, n_repeats=30, random_state=40)
     return result.importances_mean
 
 
@@ -90,7 +90,7 @@ features_file_paths = ([
     '../../../Files/10yr/RSFFeatureSets/Best_Features_2.csv',
     '../../../Files/10yr/RSFFeatureSets/Best_Features_3.csv',
     '../../../Files/10yr/RSFFeatureSets/Best_Features_4.csv',
-    '../../../Files/10yr/RSFFeatureSets/Best_Features_7.csv',
+    '../../../Files/10yr/RSFFeatureSets/Best_Features_6.csv',
     '../../../Files/10yr/RSFFeatureSets/Best_Features_8.csv',
     '../../../Files/10yr/RSFFeatureSets/Feature_set_4_optimised.csv',
     '../../../Files/10yr/RSFFeatureSets/Feature_set_6_optimised.csv',

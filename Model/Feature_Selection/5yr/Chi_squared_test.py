@@ -34,7 +34,6 @@ feature_scores = feature_scores.sort_values(by='Score', ascending=False)
 
 # Display the feature scores and p-values
 print(feature_scores)
-feature_scores.to_csv("")
 
 correlation_matrix = data.corr()
 plt.figure(figsize=(10, 10))
